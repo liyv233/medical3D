@@ -2,7 +2,10 @@
   <div>
     <el-container>
       <!-- 让宽度自适应 -->
-      <el-aside width="auto">
+      <el-aside
+        width="auto"
+        height="auto"
+      >
         <Maside />
       </el-aside>
       <el-container>

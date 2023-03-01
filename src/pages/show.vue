@@ -35,7 +35,10 @@
       v-show="!IsShow"
     >
       <div class="Views">
-        <div class="leftView">
+        <div
+          class="leftView"
+          alt="鼠标滚轮可以操作"
+        >
           <div class="top">
             <canvas id="top"></canvas>
           </div>
@@ -50,9 +53,7 @@
           <canvas id="right"></canvas>
         </div>
       </div>
-      <div class="info">
-        <el-table> </el-table>
-      </div>
+      <div class="info"></div>
     </div>
   </div>
 </template>
@@ -110,6 +111,9 @@ export default {
       this.Views.left.top.attachTo("top");
       this.Views.left.middle.attachTo("middle");
       this.Views.left.bottom.attachTo("bottom");
+      // 协同
+      this.Views.left.top.syncWith(this.Views.left.middle);
+      this.Views.left.middle.syncWith(this.Views.left.bottom);
 
       this.Views.right.attachTo("right");
 
@@ -128,6 +132,7 @@ export default {
 <style>
 .all {
   height: 100%;
+  width: 100%;
 }
 .upload {
   display: flex;
@@ -180,11 +185,11 @@ export default {
   flex-direction: row;
   justify-content: space-around;
   align-content: space-around;
-  width: 98%;
-  height: 98%;
+  width: 100%;
+  height: 100%;
 }
 .content .Views .leftView {
-  width: 58%;
+  width: 38%;
   height: 92%;
 }
 .content .Views .leftView .top,
@@ -194,7 +199,7 @@ export default {
   height: 33%;
 }
 .content .Views .rightView {
-  width: 38%;
+  width: 58%;
   height: 92%;
 }
 </style>
