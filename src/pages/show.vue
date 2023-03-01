@@ -34,18 +34,20 @@
       class="content"
       v-show="!IsShow"
     >
-      <div class="Before">
-        <div class="topLeft">
-          <canvas id="topLeft"></canvas>
+      <div class="Views">
+        <div class="leftView">
+          <div class="top">
+            <canvas id="top"></canvas>
+          </div>
+          <div class="middle">
+            <canvas id="middle"></canvas>
+          </div>
+          <div class="bottom">
+            <canvas id="bottom"></canvas>
+          </div>
         </div>
-        <div class="topRight">
-          <canvas id="topRight"></canvas>
-        </div>
-        <div class="bottomLeft">
-          <canvas id="bottomLeft"></canvas>
-        </div>
-        <div class="bottomRight">
-          <canvas id="bottomRight"></canvas>
+        <div class="rightView">
+          <canvas id="right"></canvas>
         </div>
       </div>
       <div class="info">
@@ -54,6 +56,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import { Niivue } from "@niivue/niivue";
 import { Message } from "element-ui";
@@ -62,19 +65,13 @@ export default {
   data() {
     return {
       file: null,
-      nv: {
-        before: {
-          topLeft: new Niivue(),
-          topRight: new Niivue(),
-          bottomLeft: new Niivue(),
-          bottomRight: new Niivue(),
+      Views: {
+        left: {
+          top: null,
+          middle: null,
+          bottom: null,
         },
-        after: {
-          topLeft: new Niivue(),
-          topRight: new Niivue(),
-          bottomLeft: new Niivue(),
-          bottomRight: new Niivue(),
-        },
+        right: null,
       },
       volumes: [
         {
@@ -86,6 +83,14 @@ export default {
     };
   },
   methods: {
+    init() {
+      // 左边三个
+      this.Views.left.top = new Niivue().setSliceType(0);
+      this.Views.left.middle = new Niivue().setSliceType(1);
+      this.Views.left.bottom = new Niivue().setSliceType(2);
+      // 右边
+      this.Views.right = new Niivue().setSliceType(4);
+    },
     HandleChange(file) {
       this.file = file;
       console.log(this.file);
@@ -102,26 +107,20 @@ export default {
       }
     },
     handleShow() {
-      // 左上
-      this.nv.before.topLeft.attachTo("topLeft");
-      this.nv.before.topLeft.setSliceType(0);
-      this.nv.before.topLeft.loadVolumes(this.volumes);
-      // 右上
-      this.nv.before.topRight.attachTo("topRight");
-      this.nv.before.topRight.setSliceType(1);
-      this.nv.before.topRight.loadVolumes(this.volumes);
-      // 左下
-      this.nv.before.bottomLeft.attachTo("bottomLeft");
-      this.nv.before.bottomLeft.setSliceType(2);
-      this.nv.before.bottomLeft.loadVolumes(this.volumes);
-      // 右下
-      this.nv.before.bottomRight.attachTo("bottomRight");
-      this.nv.before.bottomRight.setSliceType(4);
-      this.nv.before.bottomRight.loadVolumes(this.volumes);
+      this.Views.left.top.attachTo("top");
+      this.Views.left.middle.attachTo("middle");
+      this.Views.left.bottom.attachTo("bottom");
+
+      this.Views.right.attachTo("right");
+
+      this.Views.left.top.loadVolumes(this.volumes);
+      this.Views.left.middle.loadVolumes(this.volumes);
+      this.Views.left.bottom.loadVolumes(this.volumes);
+      this.Views.right.loadVolumes(this.volumes);
     },
   },
   mounted() {
-    console.log(new Niivue().sliceTypeRender);
+    this.init();
   },
 };
 </script>
@@ -135,6 +134,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100%;
+  width: 100%;
 }
 .upload .uploadbox {
   display: flex;
@@ -174,20 +174,27 @@ export default {
   height: 100%;
   width: 100%;
 }
-.content .Before {
+.content .Views {
+  padding-top: 10px;
   display: flex;
+  flex-direction: row;
   justify-content: space-around;
   align-content: space-around;
-  flex-wrap: wrap;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
+  width: 98%;
+  height: 98%;
 }
-.content .Before .topLeft,
-.topRight,
-.bottomLeft,
-.bottomRight {
-  width: 40%;
-  height: 44%;
+.content .Views .leftView {
+  width: 58%;
+  height: 92%;
+}
+.content .Views .leftView .top,
+.middle,
+.bottom {
+  width: 100%;
+  height: 33%;
+}
+.content .Views .rightView {
+  width: 38%;
+  height: 92%;
 }
 </style>
