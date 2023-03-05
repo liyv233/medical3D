@@ -1,11 +1,5 @@
 # medical
 
-
-## depend
- element-ui
- niivue
- vueRouter
- vueX
 ## Project setup
 ```
 npm install

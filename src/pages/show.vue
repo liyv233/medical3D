@@ -39,15 +39,9 @@
           class="leftView"
           alt="鼠标滚轮可以操作"
         >
-          <div class="top">
-            <canvas id="top"></canvas>
-          </div>
-          <div class="middle">
-            <canvas id="middle"></canvas>
-          </div>
-          <div class="bottom">
-            <canvas id="bottom"></canvas>
-          </div>
+        </div>
+          <div class="leftView">
+          <canvas id="left"></canvas>
         </div>
         <div class="rightView">
           <canvas id="right"></canvas>
@@ -62,16 +56,12 @@
 import { Niivue } from "@niivue/niivue";
 import { Message } from "element-ui";
 export default {
-  name: "show",
+
   data() {
     return {
       file: null,
       Views: {
-        left: {
-          top: null,
-          middle: null,
-          bottom: null,
-        },
+        left: null,
         right: null,
       },
       volumes: [
@@ -79,18 +69,19 @@ export default {
           url: "/7.nii.gz",
         },
       ],
-      IsShow: true,
+      IsShow: false,
       select: true,
     };
   },
   methods: {
     init() {
       // 左边三个
-      this.Views.left.top = new Niivue().setSliceType(0);
-      this.Views.left.middle = new Niivue().setSliceType(1);
-      this.Views.left.bottom = new Niivue().setSliceType(2);
+      this.Views.left = new Niivue().setSliceType(0);
+  
       // 右边
       this.Views.right = new Niivue().setSliceType(4);
+
+       this.handleShow();
     },
     HandleChange(file) {
       this.file = file;
@@ -108,18 +99,13 @@ export default {
       }
     },
     handleShow() {
-      this.Views.left.top.attachTo("top");
-      this.Views.left.middle.attachTo("middle");
-      this.Views.left.bottom.attachTo("bottom");
+      this.Views.left.attachTo("left");
       // 协同
-      this.Views.left.top.syncWith(this.Views.left.middle);
-      this.Views.left.middle.syncWith(this.Views.left.bottom);
+
 
       this.Views.right.attachTo("right");
 
-      this.Views.left.top.loadVolumes(this.volumes);
-      this.Views.left.middle.loadVolumes(this.volumes);
-      this.Views.left.bottom.loadVolumes(this.volumes);
+      this.Views.left.loadVolumes(this.volumes);
       this.Views.right.loadVolumes(this.volumes);
     },
   },
@@ -129,7 +115,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang='less' scoped>
 .all {
   height: 100%;
   width: 100%;
@@ -187,19 +173,19 @@ export default {
   align-content: space-around;
   width: 100%;
   height: 100%;
+
+#left {
+width: 70vw;
+height: 80vh;
+background-color: aqua;
 }
-.content .Views .leftView {
-  width: 38%;
-  height: 92%;
+#right {
+  width: 25vw;
+  height: 80vh;
+  background-color: rgb(40, 182, 70);
 }
-.content .Views .leftView .top,
-.middle,
-.bottom {
-  width: 100%;
-  height: 33%;
+
 }
-.content .Views .rightView {
-  width: 58%;
-  height: 92%;
-}
+
+
 </style>
