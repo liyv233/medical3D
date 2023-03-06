@@ -40,7 +40,7 @@
       <div class="nav-box">
         <div class="view">
           <span class="view-title">视图</span>
-          <div class="screen-plat">
+          <div class="screen plat">
             <span
               @click="navClick"
               id="Axial"
@@ -75,7 +75,7 @@
         </div>
         <div class="view">
           <span class="view-title">滚轮</span>
-          <div class="scroll-plat">
+          <div class="scroll plat">
             <span
               @click="navClick"
               id="|slicer"
@@ -105,7 +105,7 @@
         </div>
         <div class="view">
           <span class="view-title"> 绘画 </span>
-          <div class="draw-plat">
+          <div class="draw plat">
             <span
               id="@Off"
               @click="navClick"
@@ -150,7 +150,23 @@
         </div>
         <div class="view">
           <span class="view-title">文件</span>
-          <div class="file-plat"></div>
+          <div class="file plat">
+            <span
+              id="SaveDocument"
+              @click="navClick"
+              >SaveDocument</span
+            >
+            <span
+              id="SaveBitmap"
+              @click="navClick"
+              >SaveBitmap</span
+            >
+            <span
+              id="SaveImage"
+              @click="navClick"
+              >SaveImage</span
+            >
+          </div>
         </div>
       </div>
       <!-- 画布 -->
@@ -174,11 +190,9 @@ export default {
     return {
       file: null,
       Views: null,
-      volumes: [
-        {
-          url: "/1.nii",
-        },
-      ],
+      volumes: {
+        url: "/test.nvd",
+      },
       OpenCanvas: true,
       select: false,
       lastPos: {
@@ -263,6 +277,19 @@ export default {
         if (event.target.id === "@Cyan") this.Views.setPenValue(5, true);
         if (event.target.id === "@Purple") this.Views.setPenValue(6, true);
       }
+      // file
+      if (event.target.id === "SaveDocument") {
+        this.Views.saveDocument("test.nvd");
+        return;
+      }
+      if (event.target.id === "SaveImage") {
+        this.Views.saveImage("test.nii", false);
+        return;
+      }
+      if (event.target.id === "SaveBitmap") {
+        this.Views.saveScene("ScreenShot.png");
+        return;
+      }
     },
     init() {
       this.Views = new Niivue({
@@ -278,7 +305,13 @@ export default {
       this.Views.setClipPlane([0.3, 270, 0]);
       this.Views.drawOpacity = 0.4;
       this.Views.setSliceMM(true);
-      this.Views.loadVolumes(this.volumes);
+      let index = this.volumes.url.indexOf(".");
+      let str = this.volumes.url.slice(index);
+      if (str === ".nvd") {
+        this.Views.loadDocumentFromUrl([this.volumes.url]);
+      } else {
+        this.Views.loadVolumes([this.volumes]);
+      }
     },
   },
   mounted() {
@@ -351,30 +384,30 @@ export default {
           font-weight: 700;
           font-size: 1.5em;
         }
-        .draw-plat {
+        .plat {
           display: none;
           position: absolute;
           background-color: rgb(85, 85, 85);
+        }
+        .draw {
           transform: translate(0, 27.4vh);
         }
-        .screen-plat {
-          display: none;
-          position: absolute;
-          background-color: rgb(85, 85, 85);
+        .screen {
           transform: translate(0, 21.4vh);
         }
-        .scroll-plat {
-          display: none;
-          position: absolute;
-          background-color: rgb(85, 85, 85);
+        .scroll {
           transform: translate(0, 18.4vh);
         }
+        .file {
+          transform: translate(0, 12.4vh);
+        }
       }
-      .screen-plat,
-      .scroll-plat,
-      .draw-plat {
+      .screen,
+      .scroll,
+      .draw,
+      .file {
         span {
-          width: 5vw;
+          width: 6.5vw;
           height: 6vh;
           color: white;
           display: block;
@@ -386,15 +419,7 @@ export default {
           background-color: rgb(167, 162, 162);
         }
       }
-      .view:hover .scroll-plat {
-        display: block;
-        clear: both;
-      }
-      .view:hover .screen-plat {
-        display: block;
-        clear: both;
-      }
-      .view:hover .draw-plat {
+      .view:hover .plat {
         display: block;
         clear: both;
       }

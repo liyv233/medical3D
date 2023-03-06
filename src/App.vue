@@ -10,7 +10,6 @@
       </el-aside>
       <el-container>
         <el-main>
-          <!-- 路由组件展示区域 -->
           <router-view></router-view>
         </el-main>
       </el-container>
