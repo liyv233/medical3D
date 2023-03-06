@@ -1,6 +1,9 @@
 <template>
   <div class="all">
-    <div class="upload" v-show="IsShow">
+    <div
+      class="upload"
+      v-show="IsShow"
+    >
       <div class="uploadbox">
         <el-upload
           ref="upload"
@@ -14,26 +17,59 @@
         >
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-          <div class="el-upload__tip" slot="tip"></div>
+          <div
+            class="el-upload__tip"
+            slot="tip"
+          ></div>
         </el-upload>
-        <div class="btn" @click="HandleSubmit">
+        <div
+          class="btn"
+          @click="HandleSubmit"
+        >
           <div class="text">提交</div>
         </div>
       </div>
     </div>
 
-    <div class="content" v-show="!IsShow">
+    <div
+      class="content"
+      v-show="!IsShow"
+    >
       <div class="nav-box">
         <div class="view">
           <span class="view-title">视图</span>
 
           <div class="plat">
-            <span @click="navClick" id="Axial">Axial</span>
-            <span @click="navClick" id="Sagittal">Sagittal</span>
-            <span @click="navClick" id="Coronal">Coronal</span>
-            <span @click="navClick" id="Render">Render</span>
-            <span @click="navClick" id="ACS">ACS</span>
-            <span @click="navClick" id="ACSR">ACSR</span>
+            <span
+              @click="navClick"
+              id="Axial"
+              >Axial</span
+            >
+            <span
+              @click="navClick"
+              id="Sagittal"
+              >Sagittal</span
+            >
+            <span
+              @click="navClick"
+              id="Coronal"
+              >Coronal</span
+            >
+            <span
+              @click="navClick"
+              id="Render"
+              >Render</span
+            >
+            <span
+              @click="navClick"
+              id="ACS"
+              >ACS</span
+            >
+            <span
+              @click="navClick"
+              id="ACSR"
+              >ACSR</span
+            >
           </div>
         </div>
 
@@ -41,11 +77,31 @@
           <span class="view-title">滚轮</span>
 
           <div class="plat">
-            <span @click="navClick" id="|slicer">切片</span>
-            <span @click="navClick" id="|pan">平移/缩放</span>
-            <span @click="navClick" id="|measurement">测量</span>
-            <span @click="navClick" id="|contrast">色彩对比</span>
-            <span @click="navClick" id="|none">none</span>
+            <span
+              @click="navClick"
+              id="|slicer"
+              >切片</span
+            >
+            <span
+              @click="navClick"
+              id="|pan"
+              >平移/缩放</span
+            >
+            <span
+              @click="navClick"
+              id="|measurement"
+              >测量</span
+            >
+            <span
+              @click="navClick"
+              id="|contrast"
+              >色彩对比</span
+            >
+            <span
+              @click="navClick"
+              id="|none"
+              >none</span
+            >
           </div>
         </div>
       </div>
@@ -75,7 +131,6 @@ export default {
       ],
       IsShow: false,
       select: true,
-      isCustomDraw: true,
       lastPos: {
         vox: "",
         string: "",
@@ -84,7 +139,7 @@ export default {
   },
   methods: {
     init() {
-      this.Views =  new Niivue({
+      this.Views = new Niivue({
         logging: "true",
         dragAndDropEnabled: false,
         backColor: [0, 0, 0, 1],
@@ -92,21 +147,10 @@ export default {
         onLocationChange: this.handleIntensityChange,
       });
 
-      // this.Views.opts.isColorbar = false;
-      // this.Views.setRadiologicalConvention(false);
       this.Views.attachTo("nv");
-      // this.Views.setRenderAzimuthElevation(120, 10);
-      // this.Views.setSliceType(this.Views.sliceTypeMultiplanar);
-      // this.Views.setSliceMM(true);
-      // this.Views.opts.multiplanarForceRender = false;
-      // this.Views.graph.autoSizeMultiplanar = true;
-      // this.Views.graph.opacity = 1.0;
-      // this.Views.drawOpacity = 0.5;
-      // this.Views.opts.isColorbar = false;
+      this.Views.setPenValue(1, true);
       this.Views.opts.multiplanarForceRender = true;
       this.Views.loadVolumes(this.volumes);
-      
-      
     },
     HandleChange(file) {
       this.file = file;
@@ -127,32 +171,7 @@ export default {
       this.lastPos.vox =
         data.vox[0] + " , " + data.vox[1] + " , " + data.vox[2];
       this.lastPos.string = data.string;
-      // console.log(data);
-      // console.log(data.string);
-      // this.lastPos = data;
     },
-    // async port() {
-    //   if (!this.isCustomDraw) return;
-    //   if (!this.lastPos) return;
-    //   if (!this.Views.drawBitmap) this.Views.createEmptyDrawing();
-    //   if (!isFinite(this.lastPos.axCorSag)) return;
-    //   if (this.lastPos.axCorSag < 0 || this.lastPos.axCorSag > 2) return;
-    //   let penValue = 2; //green
-    //   let threshold_tolerance = 450;
-    //   let intensity = this.lastPos.values[0].value;
-    //   let mn = intensity - threshold_tolerance;
-    //   let mx = intensity + threshold_tolerance;
-    //   let min_threshold_tolerance = 300;
-    //   if (mn < min_threshold_tolerance) {
-    //     console.log("Hounsfield Intensity too dark to be plaque");
-    //     if (mx < min_threshold_tolerance) return;
-    //     mn = Math.max(mn, min_threshold_tolerance);
-    //   }
-    //   this.Views.drawPt(...this.lastPos.vox, penValue);
-    //   await this.Views.drawFloodFill(this.lastPos.vox, 0, 1, mn, mx);
-    //   this.Views.refreshDrawing(true);
-    // },
-
     navClick(event) {
       // view
       if (event.target.id === "Axial") {
@@ -205,7 +224,7 @@ export default {
 };
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .all {
   height: 100%;
   width: 100%;
@@ -264,48 +283,46 @@ export default {
 
     background-color: #000000;
 
-      .view {
-    margin-left: 3vw;
+    .view {
+      margin-left: 3vw;
 
-  
-    height: 100%;
-    text-align: center;
-    line-height: 3.8vh;
+      height: 100%;
+      text-align: center;
+      line-height: 3.8vh;
 
-    .view-title {
-      cursor: pointer;
-      color: rgb(4, 146, 136);
-      font-weight: 700;
-      font-size: 1.3em;
-    }
-
-    .plat {
-      position: absolute;
-      transform: translate(-1vw,-0.4vh);
-      z-index: 99 !important;
-      display: none;
-
-      background-color: #045656;
-
-      color: white;
-
-      span {
-        display: block;
-        padding: 0 .5vw;
-        text-align: center;
+      .view-title {
         cursor: pointer;
+        color: rgb(4, 146, 136);
+        font-weight: 700;
+        font-size: 1.3em;
       }
-      span:hover {
-        background-color: rgb(15, 114, 81);
+
+      .plat {
+        position: absolute;
+        transform: translate(-1vw, -0.4vh);
+        z-index: 99 !important;
+        display: none;
+
+        background-color: #045656;
+
+        color: white;
+
+        span {
+          display: block;
+          padding: 0 0.5vw;
+          text-align: center;
+          cursor: pointer;
+        }
+        span:hover {
+          background-color: rgb(15, 114, 81);
+        }
       }
     }
+    .view:hover .plat {
+      display: block;
+      clear: both;
+    }
   }
-  .view:hover .plat {
-    display: block;
-    clear: both;
-  }
-  }
-
 
   .Views {
     width: 100%;

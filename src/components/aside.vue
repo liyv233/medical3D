@@ -38,7 +38,7 @@ export default {
   },
 };
 </script>
-<style>
+<style lang="less" scoped>
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 150px;
   min-height: 100vh;
@@ -48,5 +48,6 @@ export default {
   border-right: none;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 </style>

@@ -28,15 +28,10 @@ export default {
 };
 </script>
 
-<style>
-* {
-  padding: 0;
-  margin: 0;
-}
+<style lang="less" scoped>
+.el-card__body,
 .el-main {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
+  padding: 0;
+  overflow: hidden;
 }
 </style>
