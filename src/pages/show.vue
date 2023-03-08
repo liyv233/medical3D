@@ -1,13 +1,11 @@
 <template>
   <div class="all">
-    <!-- 选择文件 -->
     <div
       class="upload"
       v-show="!OpenCanvas"
     >
       <div class="uploadbox">
         <el-upload
-          ref="upload"
           class="upload-demo"
           drag
           :multiple="false"
@@ -16,12 +14,11 @@
           :on-change="HandleChange"
           action="none"
         >
-          <i class="el-icon-upload"></i>
-          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-          <div
-            class="el-upload__tip"
-            slot="tip"
-          ></div>
+          <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+          <div class="el-upload__text">拖拽文件或者<em>点击上传</em></div>
+          <template #tip>
+            <div class="el-upload__tip">支持格式：nii、nii.gz、dcm、</div>
+          </template>
         </el-upload>
         <div
           class="btn"
@@ -37,7 +34,7 @@
       v-show="OpenCanvas"
     >
       <!-- 导航 -->
-      <Nav></Nav>
+      <MedHeader></MedHeader>
       <!-- 画布 -->
       <div class="Canv">
         <canvas id="nv"></canvas>
@@ -51,76 +48,71 @@
   </div>
 </template>
 
-<script>
-import Nav from "../components/header.vue";
+<script setup>
+import { ref, reactive, onMounted } from "vue";
+import { UploadFilled } from "@element-plus/icons-vue";
+import MedHeader from "../components/MedHeader.vue";
 import { Niivue } from "@niivue/niivue";
-import { Message } from "element-ui";
-export default {
-  data() {
-    return {
-      file: null,
-      Views: null,
-      volumes: {
-        url: "/test.nvd",
-      },
-      OpenCanvas: true,
-      select: false,
-      lastPos: {
-        vox: "",
-        string: "",
-      },
-    };
-  },
-  methods: {
-    handleIntensityChange(data) {
-      this.lastPos.vox =
-        data.vox[0] + " , " + data.vox[1] + " , " + data.vox[2];
-      this.lastPos.string = data.string;
-    },
-    HandleChange(file) {
-      this.file = file;
-      console.log(this.file);
-    },
-    HandleSubmit() {
-      if (this.file) {
-        this.OpenCanvas = true;
-        this.handleShow();
-      } else {
-        Message({
-          type: "warning",
-          message: "请先传入文件",
-        });
-      }
-    },
 
-    init() {
-      this.Views = new Niivue({
-        logging: "true",
-        dragAndDropEnabled: false,
-        backColor: [0, 0, 0, 1],
-        show3Dcrosshair: true,
-        onLocationChange: this.handleIntensityChange,
-      });
-      this.Views.attachTo("nv");
-      this.Views.opts.multiplanarForceRender = true;
-      this.Views.setRadiologicalConvention(false);
-      this.Views.setClipPlane([0.3, 270, 0]);
-      this.Views.drawOpacity = 0.4;
-      this.Views.setSliceMM(true);
-      let index = this.volumes.url.indexOf(".");
-      let str = this.volumes.url.slice(index);
-      if (str === ".nvd") {
-        this.Views.loadDocumentFromUrl([this.volumes.url]);
-      } else {
-        this.Views.loadVolumes([this.volumes]);
-      }
-    },
-  },
-  components: { Nav },
-  mounted() {
-    this.init();
-  },
-};
+var volumes = reactive({ url: "/test.nvd" });
+var File = reactive(null);
+var Views = reactive(null);
+var OpenCanvas = ref(false);
+
+var lastPos = reactive({
+  vox: "",
+  str: "",
+});
+
+function handleIntensityChange(data) {
+  lastPos.vox = data.vox[0] + " , " + data.vox[1] + " , " + data.vox[2];
+  lastPos.str = data.str;
+}
+
+function HandleChange(file) {
+  File = file;
+  console.log(File);
+}
+function handleShow() {}
+
+function Canvasinit() {
+  Views = new Niivue({
+    logging: "true",
+    dragAndDropEnabled: false,
+    backColor: [0, 0, 0, 1],
+    show3Dcrosshair: true,
+    onLocationChange: handleIntensityChange,
+  });
+
+  Views.attachTo("nv");
+  Views.opts.multiplanarForceRender = true;
+  Views.setRadiologicalConvention(false);
+  Views.setClipPlane([0.3, 270, 0]);
+  Views.drawOpacity = 0.4;
+  Views.setSliceMM(true);
+  let index = volumes.url.indexOf(".");
+  let str = volumes.url.slice(index);
+  if (str === ".nvd") {
+    Views.loadDocumentFromUrl([volumes.url]);
+  } else {
+    Views.loadVolumes([volumes]);
+  }
+}
+
+function HandleSubmit() {
+  if (File) {
+    OpenCanvas.value = true;
+    console.log(OpenCanvas);
+    Canvasinit();
+  } else {
+    // Message({
+    //   type: "warning",
+    //   message: "请先传入文件",
+    // });
+  }
+}
+
+onMounted(() => {});
 </script>
 
 <style lang="less" scoped>
@@ -131,8 +123,8 @@ export default {
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      min-width: 100vw;
+      height: 100vh;
+      width: 100%;
       .upload-demo {
         cursor: pointer;
         width: 30vw;
@@ -146,11 +138,22 @@ export default {
         /deep/.el-upload-dragger {
           border: none;
         }
+        /deep/.el-upload-list__item,
+        .is-ready {
+          width: 8vw;
+        }
+        .el-upload__text {
+          font-size: 18px;
+        }
+        .el-upload__tip {
+          font-size: 18px;
+        }
       }
       .upload-demo:hover {
         border-color: #409eff;
       }
       .btn {
+        font-size: 18px;
         margin-top: 5vh;
         cursor: pointer;
         width: 8vh;

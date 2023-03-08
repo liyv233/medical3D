@@ -1,18 +1,18 @@
-import VueRouter from "vue-router";
-import Vue from "vue";
-Vue.use(VueRouter);
+import { createRouter, createWebHashHistory } from "vue-router";
 
-import show from "../pages/show.vue";
-import test from "../pages/test.vue";
-export default new VueRouter({
-  routes: [
-    {
-      path: "/",
-      component: show,
-    },
-    {
-      path: "/test",
-      component: test,
-    },
-  ],
+const routes = [
+  {
+    path: "/",
+    name: "main",
+    component: () => import("../pages/show.vue"),
+  },
+  {
+    path: "/test",
+    name: "test",
+    component: () => import("../pages/test.vue"),
+  },
+];
+export default createRouter({
+  history: createWebHashHistory(),
+  routes: routes,
 });

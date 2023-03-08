@@ -1,12 +1,8 @@
 <template>
-  <div>
+  <div class="common-layout">
     <el-container>
-      <!-- 让宽度自适应 -->
-      <el-aside
-        width="auto"
-        height="auto"
-      >
-        <Maside />
+      <el-aside width="auto">
+        <side></side>
       </el-aside>
       <el-container>
         <el-main>
@@ -17,20 +13,13 @@
   </div>
 </template>
 
-<script>
-import Maside from "./components/aside.vue";
-export default {
-  name: "App",
-  components: {
-    Maside,
-  },
-};
+<script setup>
+import Side from "./components/aside.vue";
 </script>
 
 <style lang="less" scoped>
-.el-card__body,
 .el-main {
   padding: 0;
-  overflow: hidden;
+  margin: 0;
 }
 </style>
