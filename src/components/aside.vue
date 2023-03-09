@@ -18,16 +18,15 @@
       </el-menu-item>
       <el-menu-item index="/">
         <el-icon><Plus /></el-icon>
-        <template #title>导入模型</template>
+        <template #title>导入</template>
       </el-menu-item>
-      <el-menu-item index="2">
-        <el-icon><document /></el-icon>
-        <template #title>待定</template>
+      <el-menu-item index="preview">
+        <el-icon><View /></el-icon>
+        <template #title>预览</template>
       </el-menu-item>
     </el-menu>
   </div>
 </template>
-
 <script setup>
 import { ref } from "vue";
 let isCollapse = ref(true);

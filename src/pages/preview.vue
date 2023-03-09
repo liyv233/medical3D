@@ -8,8 +8,8 @@
     </div>
     <!-- 底部坐标 -->
     <div class="port">
-      <span>坐标:[{{ lastPos.vox || "x ,y ,z" }}]</span>
-      <span>像素值:{{ lastPos.str || "?" }}</span>
+      <span>坐标：[{{ lastPos.vox || "x ,y ,z" }}]</span>
+      <span>像素值：{{ lastPos.str || "?" }}</span>
     </div>
   </div>
 </template>
@@ -28,7 +28,7 @@ function handleIntensityChange(data) {
   lastPos.vox = data.vox[0] + " , " + data.vox[1] + " , " + data.vox[2];
   let OriStr = data.string;
   let index = OriStr.indexOf("=");
-  let str = OriStr.slice(index);
+  let str = OriStr.slice(index + 1);
   lastPos.str = str;
 }
 function Canvasinit() {

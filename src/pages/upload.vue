@@ -48,34 +48,48 @@ function HandleSubmit() {
 </script>
 <style lang="less" scoped>
 .upload {
+  height: 100vh;
+  width: 100%;
   .uploadbox {
+    height: 100%;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    width: 100%;
+    flex-direction: column;
     .upload-demo {
-      cursor: pointer;
-      width: 30vw;
-      height: 40vh;
+      background: rgba(255, 255, 255, 0.205);
+      border-radius: 25px;
+      width: 50vw;
+      height: 60vh;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      border-radius: 6px;
-      border: 1px dashed #d9d9d9;
-      /deep/.el-upload-dragger {
+      border-radius: 30px;
+      :deep(.el-upload-dragger) {
+        width: 20vw;
+        height: 25vh;
         border: none;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        border-radius: 25px;
+        box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.2);
       }
-      /deep/.el-upload-list__item,
-      .is-ready {
-        width: 8vw;
+      :deep(.el-upload-list__item, .is-ready) {
+        font-size: 20px;
+        text-align: center;
+        height: 4vh;
+        line-height: 4vh;
+        width: 10vw;
+      }
+      :deep(.el-upload-list__item, .is-ready):hover {
+        background-color: #e4efe9;
       }
       .el-upload__text {
         font-size: 18px;
       }
       .el-upload__tip {
+        margin-top: 30px;
         font-size: 18px;
       }
     }
@@ -90,11 +104,11 @@ function HandleSubmit() {
       height: 4vh;
       line-height: 4vh;
       border-radius: 2vh;
-      background-color: rgb(178, 225, 243);
+      background-color: #7adaf1;
       text-align: center;
     }
     .btn:active {
-      background-color: rgb(76, 125, 231);
+      background-color: rgb(126, 206, 238);
     }
   }
 }
