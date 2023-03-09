@@ -7,9 +7,9 @@ const routes = [
     component: () => import("../pages/show.vue"),
   },
   {
-    path: "/test",
-    name: "test",
-    component: () => import("../pages/test.vue"),
+    path: "/preview",
+    name: "preview",
+    component: () => import("../pages/preview.vue"),
   },
 ];
 export default createRouter({

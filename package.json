@@ -11,9 +11,9 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
     "element-plus": "^2.2.35",
+    "pinia": "^2.0.33",
     "vue": "^3.2.45",
-    "vue-router": "^4.1.6",
-    "vuex": "^4.1.0"
+    "vue-router": "^4.1.6"
   },
   "devDependencies": {
     "@niivue/niivue": "^0.32.0",

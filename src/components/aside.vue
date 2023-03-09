@@ -7,15 +7,16 @@
       text-color="#fff"
       active-text-color="#ffd04b"
       :collapse="isCollapse"
+      :router="true"
     >
       <el-menu-item
-        index="0"
+        index=""
         class="middle"
         @click="isCollapse = !isCollapse"
       >
         <el-icon><Menu /></el-icon>
       </el-menu-item>
-      <el-menu-item index="1">
+      <el-menu-item index="/">
         <el-icon><Plus /></el-icon>
         <template #title>导入模型</template>
       </el-menu-item>
@@ -29,7 +30,7 @@
 
 <script setup>
 import { ref } from "vue";
-let isCollapse = ref(false);
+let isCollapse = ref(true);
 </script>
 <style lang="less" scoped>
 .el-menu-vertical-demo:not(.el-menu--collapse) {

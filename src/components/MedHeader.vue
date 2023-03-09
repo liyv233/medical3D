@@ -134,74 +134,10 @@
 </template>
 
 <script setup>
-function navClick(event) {
-  // sliceType
-  if (event.target.id === "Axial") {
-    this.Views.setSliceType(this.Views.sliceTypeAxial);
-  }
-  if (event.target.id === "Coronal") {
-    this.Views.setSliceType(this.Views.sliceTypeCoronal);
-  }
-  if (event.target.id === "Sagittal") {
-    this.Views.setSliceType(this.Views.sliceTypeSagittal);
-  }
-  if (event.target.id === "Render") {
-    this.Views.setSliceType(this.Views.sliceTypeRender);
-  }
-  if (event.target.id === "ACS") {
-    this.Views.opts.multiplanarForceRender = false;
-    this.Views.setSliceType(this.Views.sliceTypeMultiplanar);
-  }
-  if (event.target.id === "ACSR") {
-    this.Views.opts.multiplanarForceRender = true;
-    this.Views.setSliceType(this.Views.sliceTypeMultiplanar);
-  }
-  // roller
-  if (event.target.id.charAt(0) === "|") {
-    let str = event.target.id.substr(1);
-    switch (str) {
-      case "none":
-        this.Views.opts.dragMode = this.Views.dragModes.none;
-        break;
-      case "contrast":
-        this.Views.opts.dragMode = this.Views.dragModes.contrast;
-        break;
-      case "measurement":
-        this.Views.opts.dragMode = this.Views.dragModes.measurement;
-        break;
-      case "pan":
-        this.Views.opts.dragMode = this.Views.dragModes.pan;
-        break;
-      case "slicer":
-        this.Views.opts.dragMode = this.Views.dragModes.slicer3D;
-        break;
-    }
-  }
-  //draw
-  if (event.target.id.charAt(0) === "@") {
-    if (event.target.id == "@Off") this.Views.setDrawingEnabled(false);
-    else this.Views.setDrawingEnabled(true);
-    if (event.target.id === "@Erase") this.Views.setPenValue(0, true);
-    if (event.target.id === "@Red") this.Views.setPenValue(1, true);
-    if (event.target.id === "@Green") this.Views.setPenValue(2, true);
-    if (event.target.id === "@Blue") this.Views.setPenValue(3, true);
-    if (event.target.id === "@Yellow") this.Views.setPenValue(4, true);
-    if (event.target.id === "@Cyan") this.Views.setPenValue(5, true);
-    if (event.target.id === "@Purple") this.Views.setPenValue(6, true);
-  }
-  // file
-  if (event.target.id === "SaveDocument") {
-    this.Views.saveDocument("test.nvd");
-    return;
-  }
-  if (event.target.id === "SaveImage") {
-    this.Views.saveImage("test.nii", false);
-    return;
-  }
-  if (event.target.id === "SaveBitmap") {
-    this.Views.saveScene("ScreenShot.png");
-    return;
-  }
+const emit = defineEmits(["navChange"]);
+const Views = defineProps(["Views"]);
+function navClick(e) {
+  emit("navChange", e);
 }
 </script>
 
