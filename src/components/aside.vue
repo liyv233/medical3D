@@ -33,7 +33,12 @@ let isCollapse = ref(true);
 </script>
 <style lang="less" scoped>
 .el-menu-vertical-demo:not(.el-menu--collapse) {
-  width: 8vw;
+  width: 6vw;
+  min-height: 100vh;
+}
+.el-menu-vertical-demo,
+.el-menu--collapse {
+  width: 3.5vw;
   min-height: 100vh;
 }
 .el-menu {

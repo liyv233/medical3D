@@ -104,11 +104,11 @@ function HandleSubmit() {
       height: 4vh;
       line-height: 4vh;
       border-radius: 2vh;
-      background-color: #7adaf1;
+      background-color: #68b4f357;
       text-align: center;
     }
     .btn:active {
-      background-color: rgb(126, 206, 238);
+      background-color: rgba(126, 206, 238, 0.384);
     }
   }
 }
