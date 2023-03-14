@@ -12,6 +12,50 @@
       </div>
       <div class="toolContent">
         <el-collapse v-model="activeNames">
+          <!-- material -->
+          <el-collapse-item
+            title="模型"
+            name="0"
+          >
+            <div class="mode">
+              <div
+                class="volumes"
+                v-for="(volume, index) in volumes"
+                :key="volume.name"
+                :index="index"
+              >
+                {{ volume.name }}
+                <span>
+                  <select v-model="Material">
+                    <option
+                      v-for="material in materials"
+                      :value="material"
+                      :selected="material == Material ? true : false"
+                      @click="handleMaterial(index, material)"
+                    >
+                      {{ material }}
+                    </option>
+                  </select>
+                </span>
+              </div>
+              <div class="btn">
+                <el-button
+                  type="primary"
+                  round
+                  @click="Start()"
+                >
+                  推理
+                </el-button>
+                <el-button
+                  type="primary"
+                  round
+                  @click="Reasoning()"
+                >
+                  调整结果
+                </el-button>
+              </div>
+            </div>
+          </el-collapse-item>
           <!-- mouse -->
           <el-collapse-item
             title="右键功能"
@@ -27,7 +71,7 @@
               ></el-radio>
             </el-radio-group>
           </el-collapse-item>
-          <!-- drawing -->
+          <!-- screen -->
           <el-collapse-item
             title="视图"
             name="2"
@@ -42,7 +86,7 @@
               ></el-radio>
             </el-radio-group>
           </el-collapse-item>
-          <!-- screen -->
+          <!-- drawing -->
           <el-collapse-item
             title="标注"
             name="3"
@@ -63,42 +107,43 @@
               </div>
             </div>
           </el-collapse-item>
-          <!-- material -->
-          <el-collapse-item
-            title="材质"
-            name="4"
-          >
-          </el-collapse-item>
           <!-- save -->
           <el-collapse-item
             title="保存"
-            name="5"
+            name="4"
           >
             <el-row class="mb-4">
               <el-button
                 type="primary"
                 round
-                v-for="file in files"
-                :key="file.id"
-                :id="file.id"
-                @click="handleFile(file.id)"
-                >{{ file.label }}</el-button
-              >
+                v-for="save in saves"
+                :key="save.id"
+                :id="save.id"
+                @click="handleSave(file.id)"
+                >{{ save.label }}
+              </el-button>
             </el-row>
           </el-collapse-item>
         </el-collapse>
       </div>
     </div>
+    <div class="other"></div>
   </div>
 </template>
+
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onBeforeMount } from "vue";
 import { useTool } from "../store";
 // pinia
 const Tool = useTool();
-const { handleFile, handleScreen, handleMouse, handleTool, handleMaterial } =
-  Tool;
-
+const {
+  handleSave,
+  handleScreen,
+  handleMouse,
+  handleTool,
+  handleMaterial,
+  getVolumesFile,
+} = Tool;
 // some define about tool
 const mouses = reactive([
   { id: "none", label: "无" },
@@ -124,20 +169,89 @@ const colors = reactive([
   { id: "Purple", label: "紫" },
   { id: "Erase", label: "橡皮" },
 ]);
-const files = reactive([
+const saves = reactive([
   { id: "SaveDocument", label: "带标注模型" },
   { id: "SaveImage", label: "仅标注部分" },
   { id: "SaveBitmap", label: "屏幕截图" },
 ]);
+const materials = ref([
+  "actc",
+  "bcgwhw",
+  "bcgwhw_dark",
+  "blue",
+  "blue2red",
+  "bluern",
+  "bone",
+  "bronze",
+  "cividis",
+  "cool",
+  "copper",
+  "copper2",
+  "ct_airways",
+  "ct_artery",
+  "ct_bones",
+  "ct_brain",
+  "ct_brain_gray",
+  "ct_cardiac",
+  "ct_head",
+  "ct_kidneys",
+  "ct_liver",
+  "ct_muscles",
+  "ct_scalp",
+  "ct_skull",
+  "ct_soft",
+  "ct_soft_tissue",
+  "ct_surface",
+  "ct_vessels",
+  "ct_w_contrast",
+  "cubehelix",
+  "electric_blue",
+  "freesurfer",
+  "ge_color",
+  "gold",
+  "gray",
+  "green",
+  "hot",
+  "hotiron",
+  "hsv",
+  "inferno",
+  "jet",
+  "linspecer",
+  "magma",
+  "mako",
+  "nih",
+  "plasma",
+  "random",
+  "red",
+  "redyell",
+  "rocket",
+  "surface",
+  "turbo",
+  "violet",
+  "viridis",
+  "warm",
+  "winter",
+  "x_rain",
+]);
+// model
+var Material = ref("gray");
 var Mouse = ref("无");
 var Screen = ref("全部展示");
 var BeChooseColor = ref("Red");
 var Pen = ref(false);
 var isFill = ref(false);
+var volumes = ref();
+// open option
+const activeNames = ref(["1", "2", "3", "4", "0"]);
 
-const activeNames = ref(["1", "2", "3", "4", "5"]);
-onMounted(() => {});
+//
+function Start() {}
+function Reasoning() {}
+onBeforeMount(() => {
+  volumes = getVolumesFile();
+});
 </script>
+
 <style lang="less" scoped>
 .mask {
   position: fixed;
@@ -200,9 +314,36 @@ onMounted(() => {});
               font-weight: 500;
             }
           }
+          .mode {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            .volumes {
+              display: flex;
+              flex-direction: row;
+              justify-content: center;
+              align-items: center;
+              font-size: 20px;
+              span {
+                margin-left: 1.2vw;
+                select {
+                  height: 2.5vh;
+                  text-align: center;
+                }
+              }
+            }
+            .el-button {
+              margin-top: 1vh;
+            }
+          }
         }
       }
     }
+  }
+  .other {
+    width: 82vw;
+    height: 100vh;
   }
 }
 </style>

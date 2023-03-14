@@ -6,21 +6,21 @@
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b"
-      :collapse="isCollapse"
+      :collapse="true"
       :router="true"
     >
-      <el-menu-item
-        index=""
-        class="middle"
-        @click="isCollapse = !isCollapse"
-      >
-        <el-icon><Menu /></el-icon>
+      <el-menu-item index="">
+        <el-icon><User /></el-icon>
+        <template #title>用户中心</template>
       </el-menu-item>
       <el-menu-item index="/">
         <el-icon><Plus /></el-icon>
         <template #title>导入</template>
       </el-menu-item>
-      <el-menu-item index="preview">
+      <el-menu-item
+        index="preview"
+        :disabled="isUpload"
+      >
         <el-icon><View /></el-icon>
         <template #title>预览</template>
       </el-menu-item>
@@ -28,8 +28,12 @@
   </div>
 </template>
 <script setup>
+import { User } from "@element-plus/icons-vue";
 import { ref } from "vue";
-let isCollapse = ref(true);
+import { useAside } from "../store/index";
+import { storeToRefs } from "pinia";
+const Aside = useAside();
+const { isUpload } = storeToRefs(Aside);
 </script>
 <style lang="less" scoped>
 .el-menu-vertical-demo:not(.el-menu--collapse) {

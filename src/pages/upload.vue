@@ -7,44 +7,49 @@
         :multiple="false"
         :limit="1"
         :auto-upload="false"
-        :on-change="HandleChange"
+        :on-change="AddVolumesFile"
+        :on-remove="RemoveVolumesFile"
         action="none"
       >
         <el-icon class="el-icon--upload"><upload-filled /></el-icon>
         <div class="el-upload__text">拖拽文件或者<em>点击上传</em></div>
         <template #tip>
-          <div class="el-upload__tip">支持格式：nii、nii.gz、dcm、</div>
+          <div class="el-upload__tip">
+            支持格式：nii、nii.gz、dcm、raw、mhd等
+          </div>
         </template>
       </el-upload>
-      <div
-        class="btn"
-        @click="HandleSubmit"
+      <el-button
+        round
+        type="primary"
+        @click="HandleSubmit()"
       >
-        <div class="text">提交</div>
-      </div>
+        打开图片
+      </el-button>
     </div>
   </div>
 </template>
-<script setup>
-import { reactive } from "vue";
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
 import { UploadFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-var File = reactive(null);
+import { useTool, useAside } from "../store/index";
 const router = useRouter();
-function HandleChange(file) {
-  File = file;
-  console.log(File);
-}
+const Tool = useTool();
+const Aside = useAside();
+const { handlePreView } = Aside;
+const { getVolumesFile, AddVolumesFile, RemoveVolumesFile } = Tool;
+
 function HandleSubmit() {
-  if (File) {
+  const Volumes = getVolumesFile();
+  if (Volumes.value.length) {
     router.push("/preview");
+    handlePreView();
   } else {
-    // Message({
-    //   type: "warning",
-    //   message: "请先传入文件",
-    // });
   }
 }
+
+onMounted(() => {});
 </script>
 <style lang="less" scoped>
 .upload {
@@ -76,8 +81,8 @@ function HandleSubmit() {
         box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.2);
       }
       :deep(.el-upload-list__item, .is-ready) {
+        transform: translate(0, 3vh);
         font-size: 20px;
-        text-align: center;
         height: 4vh;
         line-height: 4vh;
         width: 10vw;
@@ -89,26 +94,15 @@ function HandleSubmit() {
         font-size: 18px;
       }
       .el-upload__tip {
-        margin-top: 30px;
+        transform: translate(0, 2vh);
         font-size: 18px;
       }
     }
     .upload-demo:hover {
       border-color: #409eff;
     }
-    .btn {
-      font-size: 18px;
-      margin-top: 5vh;
-      cursor: pointer;
-      width: 8vh;
-      height: 4vh;
-      line-height: 4vh;
-      border-radius: 2vh;
-      background-color: #68b4f357;
-      text-align: center;
-    }
-    .btn:active {
-      background-color: rgba(126, 206, 238, 0.384);
+    .el-button {
+      transform: translate(0, -8vh);
     }
   }
 }
