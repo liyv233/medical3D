@@ -33,7 +33,8 @@
 import { onMounted, ref } from "vue";
 import { UploadFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-import { useTool, useAside } from "../store/Tool.js";
+import { useAside } from "../store/Aside.js";
+import { useTool } from "../store/Tool";
 const router = useRouter();
 const Tool = useTool();
 const Aside = useAside();

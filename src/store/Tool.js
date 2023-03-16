@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
 import { Niivue } from "@niivue/niivue";
 import { ElMessage } from "element-plus";
+
 export const useTool = defineStore("tool", () => {
   // var
   var Views = ref();
@@ -181,16 +182,5 @@ export const useTool = defineStore("tool", () => {
     toolSwitch,
     lastPos,
     File,
-  };
-});
-
-export const useAside = defineStore("user", () => {
-  var isUpload = ref(true);
-  function handlePreView() {
-    isUpload.value = !isUpload.value;
-  }
-  return {
-    handlePreView,
-    isUpload,
   };
 });

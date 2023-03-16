@@ -3,7 +3,6 @@ import { createRouter, createWebHashHistory } from "vue-router";
 const routes = [
   {
     path: "/",
-    name: "main",
     component: () => import("../pages/upload.vue"),
   },
   {
@@ -12,9 +11,9 @@ const routes = [
     component: () => import("../pages/preview.vue"),
   },
   {
-    path: "/reg-Log",
-    name: "reg-log",
-    component: () => import("../pages/Reg&Log.vue"),
+    path: "/sign",
+    name: "sign",
+    component: () => import("../pages/sign.vue"),
   },
 ];
 export default createRouter({
