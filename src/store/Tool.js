@@ -5,12 +5,13 @@ import { ElMessage } from "element-plus";
 export const useTool = defineStore("tool", () => {
   // var
   var Views = ref();
-  const volumes = ref([]);
-  const toolSwitch = ref(false);
-  const lastPos = reactive({ vox: "", str: "" });
-  const choose = ref("Red");
-  const pen = ref(false);
-  const fill = ref(false);
+  var File = ref();
+  var volumes = ref([]);
+  var toolSwitch = ref(false);
+  var lastPos = reactive({ vox: "", str: "" });
+  var choose = ref("Red");
+  var pen = ref(false);
+  var fill = ref(false);
 
   // 初始化渲染器
   function CanvasInit() {
@@ -21,7 +22,6 @@ export const useTool = defineStore("tool", () => {
       show3Dcrosshair: true,
       onLocationChange: handleIntensityChange,
     });
-
     Views.opts.multiplanarForceRender = true;
     Views.setRadiologicalConvention(false);
     Views.drawOpacity = 0.4;
@@ -180,8 +180,10 @@ export const useTool = defineStore("tool", () => {
     RemoveVolumesFile,
     toolSwitch,
     lastPos,
+    File,
   };
 });
+
 export const useAside = defineStore("user", () => {
   var isUpload = ref(true);
   function handlePreView() {

@@ -7,5 +7,9 @@
     </div>
   </div>
 </template>
-<script setup></script>
+
+<script setup>
+import { use } from "";
+</script>
+
 <style lang="less" scoped></style>

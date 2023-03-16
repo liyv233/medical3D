@@ -30,7 +30,7 @@
 <script setup>
 import { User } from "@element-plus/icons-vue";
 import { ref } from "vue";
-import { useAside } from "../store/index";
+import { useAside } from "../store/Aside.js";
 import { storeToRefs } from "pinia";
 const Aside = useAside();
 const { isUpload } = storeToRefs(Aside);

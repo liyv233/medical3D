@@ -19,31 +19,30 @@
   </div>
   <tool v-show="toolSwitch"></tool>
 </template>
+
 <script setup>
 import { storeToRefs } from "pinia";
-import { useTool } from "../store";
+import { useTool } from "../store/Tool.js";
 import tool from "../components/tool.vue";
 import { reactive, onMounted } from "vue";
+import { NVImage } from "@niivue/niivue";
 // fix path from loaction
-const volumes = reactive({ url: "/1.nii" });
+// const volumes = reactive({ url: "/1.nii" });
+
 // use Store
 const Tool = useTool();
 var { toolSwitch, lastPos } = storeToRefs(Tool);
-const { handleTool, CanvasInit } = Tool;
+const { handleTool, CanvasInit, getVolumesFile } = Tool;
 // attach to canvas
-function Attach() {
+async function Attach() {
+  const file = getVolumesFile();
   const Views = CanvasInit();
   Views.attachTo("nv");
-  let index = volumes.url.indexOf(".");
-  let str = volumes.url.slice(index);
-  if (str === ".nvd") {
-    Views.loadDocumentFromUrl([volumes.url]);
-  } else {
-    Views.loadVolumes([volumes]);
-  }
+  const nvimage = await NVImage.loadFromFile({ file: file.value[0].raw });
+  Views.addVolume(nvimage);
 }
 
-onMounted(() => {
+onMounted(async () => {
   Attach();
 });
 </script>

@@ -24,7 +24,7 @@
                 :key="volume.name"
                 :index="index"
               >
-                {{ volume.name }}
+                <article>{{ volume.name }}</article>
                 <span>
                   <select v-model="Material">
                     <option
@@ -127,13 +127,16 @@
         </el-collapse>
       </div>
     </div>
-    <div class="other"></div>
+    <div
+      class="other"
+      @click="handleTool(BeChooseColor, Pen, isFill)"
+    ></div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onBeforeMount } from "vue";
-import { useTool } from "../store";
+import { useTool } from "../store/Tool.js";
 // pinia
 const Tool = useTool();
 const {
@@ -324,13 +327,19 @@ onBeforeMount(() => {
               flex-direction: row;
               justify-content: center;
               align-items: center;
-              font-size: 20px;
               span {
                 margin-left: 1.2vw;
                 select {
                   height: 2.5vh;
                   text-align: center;
                 }
+              }
+              article {
+                width: 40%;
+                font-size: 20px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
               }
             }
             .el-button {

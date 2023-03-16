@@ -11,6 +11,11 @@ const routes = [
     name: "preview",
     component: () => import("../pages/preview.vue"),
   },
+  {
+    path: "/reg-Log",
+    name: "reg-log",
+    component: () => import("../pages/Reg&Log.vue"),
+  },
 ];
 export default createRouter({
   history: createWebHashHistory(),
