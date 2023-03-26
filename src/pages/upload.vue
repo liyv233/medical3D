@@ -35,21 +35,26 @@ import { UploadFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { useAside } from "../store/Aside.js";
 import { useTool } from "../store/Tool";
-const router = useRouter();
+import { ElMessage } from "element-plus";
 const Tool = useTool();
 const Aside = useAside();
 const { handlePreView } = Aside;
 const { getVolumesFile, AddVolumesFile, RemoveVolumesFile } = Tool;
 
+const router = useRouter();
 function HandleSubmit() {
   const Volumes = getVolumesFile();
   if (Volumes.value.length) {
     router.push("/preview");
     handlePreView();
   } else {
+    ElMessage({
+      type: "warning",
+      message: "请先选择文件",
+      showClose: true,
+    });
   }
 }
-
 onMounted(() => {});
 </script>
 <style lang="less" scoped>
@@ -104,6 +109,9 @@ onMounted(() => {});
     }
     .el-button {
       transform: translate(0, -8vh);
+    }
+    .el-button:active {
+      scale: 0.95;
     }
   }
 }

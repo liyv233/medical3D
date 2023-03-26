@@ -4,23 +4,13 @@ import { Niivue } from "@niivue/niivue";
 import { ElMessage } from "element-plus";
 
 export const useTool = defineStore("tool", () => {
-  // var
-  var Views = ref();
-  var File = ref();
-  var volumes = ref([]);
-  var toolSwitch = ref(false);
-  var lastPos = reactive({ vox: "", str: "" });
-  var choose = ref("Red");
-  var pen = ref(false);
-  var fill = ref(false);
-
   // 初始化渲染器
+  var Views = ref(null);
   function CanvasInit() {
     Views = new Niivue({
       logging: "true",
       dragAndDropEnabled: false,
       backColor: [0, 0, 0, 1],
-      show3Dcrosshair: true,
       onLocationChange: handleIntensityChange,
     });
     Views.opts.multiplanarForceRender = true;
@@ -30,7 +20,9 @@ export const useTool = defineStore("tool", () => {
 
     return Views;
   }
+
   // 相关配置
+  var lastPos = reactive({ vox: "", str: "" });
   function handleIntensityChange(data) {
     lastPos.vox = data.vox[0] + " , " + data.vox[1] + " , " + data.vox[2];
     let OriStr = data.string;
@@ -38,7 +30,11 @@ export const useTool = defineStore("tool", () => {
     let str = OriStr.slice(index + 1);
     lastPos.str = str;
   }
+
   // 工具栏开关
+  var pen = ref(false);
+  var fill = ref(false);
+  var toolSwitch = ref(false);
   function handleTool(id, Pen, isFill) {
     toolSwitch.value = !toolSwitch.value;
     if (id) {
@@ -52,6 +48,7 @@ export const useTool = defineStore("tool", () => {
     }
     handleColor();
   }
+
   // 鼠标右键工具
   function handleMouse(id) {
     switch (id) {
@@ -72,6 +69,7 @@ export const useTool = defineStore("tool", () => {
         break;
     }
   }
+
   // 视图工具
   function handleScreen(id) {
     switch (id) {
@@ -97,7 +95,9 @@ export const useTool = defineStore("tool", () => {
         break;
     }
   }
+
   // 画笔颜色工具
+  var choose = ref("Red");
   function handleColor() {
     Views.setDrawingEnabled(pen.value);
     switch (choose.value) {
@@ -124,37 +124,40 @@ export const useTool = defineStore("tool", () => {
         break;
     }
   }
+
   // 保存相关工具
-  function handleSave(id) {
+  async function handleSave(id) {
     switch (id) {
-      case "SaveDocument":
-        Views.saveDocument("all.nvd");
+      case "Image":
+        await Views.saveImage("test.nii", true);
         return;
-      case "SaveImage":
-        Views.saveImage("all.nii", true);
-        return;
-      case "SaveBitmap":
-        Views.saveScene("ScreenShot.png");
+      case "Bitmap":
+        await Views.saveScene("ScreenShot.png");
         return;
     }
   }
+
   // 更改材质
   function handleMaterial(index, id) {
     Views.volumes[index].colorMap = id;
     Views.updateGLVolume();
     return;
   }
+
   // 添加文件时的相关操作
+  var volumes = ref([]);
   function AddVolumesFile(file) {
     if (volumes.value.length == 0) {
       volumes.value.push(file);
     } else {
-      ElMessage({
-        showClose: true,
-        message: "仅限单个文件上传",
-        type: "warning",
-      });
+      RemoveVolumesFile();
+      volumes.value.push(file);
     }
+    ElMessage({
+      type: "warning",
+      message: "仅支持单文件上传",
+      showClose: true,
+    });
   }
   function RemoveVolumesFile() {
     volumes.value.pop();
@@ -181,6 +184,6 @@ export const useTool = defineStore("tool", () => {
     RemoveVolumesFile,
     toolSwitch,
     lastPos,
-    File,
+    volumes,
   };
 });

@@ -13,7 +13,7 @@
     <div class="port">
       <div class="pos">
         <article>坐标：[{{ lastPos.vox || "x ,y ,z" }}]</article>
-        <article>像素值：{{ lastPos.str || "?" }}</article>
+        <article>器官id：{{ lastPos.str || "x" }}</article>
       </div>
     </div>
   </div>
@@ -21,17 +21,17 @@
 </template>
 
 <script setup>
+import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useTool } from "../store/Tool.js";
 import tool from "../components/tool.vue";
-import { reactive, onMounted } from "vue";
 import { NVImage } from "@niivue/niivue";
-// fix path from loaction
-// const volumes = reactive({ url: "/1.nii" });
-
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
 // use Store
 const Tool = useTool();
-var { toolSwitch, lastPos } = storeToRefs(Tool);
+const router = useRouter();
+var { toolSwitch, lastPos, volumes } = storeToRefs(Tool);
 const { handleTool, CanvasInit, getVolumesFile } = Tool;
 // attach to canvas
 async function Attach() {
@@ -43,7 +43,15 @@ async function Attach() {
 }
 
 onMounted(async () => {
-  Attach();
+  if (volumes.value.length == 0) {
+    ElMessage({
+      type: "warning",
+      message: "请先提交文件",
+    });
+    router.push("/");
+  } else {
+    Attach();
+  }
 });
 </script>
 
@@ -59,6 +67,9 @@ onMounted(async () => {
     background-color: black;
     right: 1vw;
     top: 2vh;
+  }
+  .tool:active {
+    transform: scale(0.92);
   }
   .Canv {
     width: 100%;

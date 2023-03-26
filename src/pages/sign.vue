@@ -26,7 +26,12 @@
             id="password"
             placeholder="密码"
           />
-          <button class="signUp">注 册</button>
+          <button
+            class="signUp"
+            @click="SignUp"
+          >
+            注 册
+          </button>
         </div>
       </div>
       <!-- login -->
@@ -50,7 +55,12 @@
             class="forget-password"
             >忘记密码?</a
           >
-          <button class="signIn">登 陆</button>
+          <button
+            class="signIn"
+            @click="SignIn"
+          >
+            登 陆
+          </button>
         </div>
       </div>
       <!-- overlay container -->
@@ -59,13 +69,11 @@
           <!-- overlay left -->
           <div class="overlay_panel overlay_left_container">
             <h2>欢 迎 使 用</h2>
-            <p>输入您的个人信息并与我们一起开始旅程</p>
             <button @click="RemoveClass()">登 陆</button>
           </div>
           <!-- overlay right -->
           <div class="overlay_panel overlay_right_container">
             <h2>欢 迎 回 来</h2>
-            <p>为了与我们保持联系，请使用您的个人信息登录</p>
             <button @click="AddClass()">注 册</button>
           </div>
         </div>
@@ -79,8 +87,9 @@ import { onMounted, ref } from "vue";
 import { useUser } from "../store/user";
 import { storeToRefs } from "pinia";
 const User = useUser();
-const { SignIn } = storeToRefs(User);
-const { handleSignIn } = User;
+const { SignIn, SignUp } = User;
+
+// ref获取dom
 const container = ref(null);
 function AddClass() {
   container.value.classList.add("active");
@@ -88,6 +97,7 @@ function AddClass() {
 function RemoveClass() {
   container.value.classList.remove("active");
 }
+
 // onMounted --- debugger
 onMounted(() => {});
 </script>
@@ -141,6 +151,7 @@ onMounted(() => {});
           border: none;
         }
         button {
+          cursor: pointer;
           background: #ff4b2b;
           padding: 1vh 2vw;
           border: 1px solid transparent;
@@ -182,6 +193,7 @@ onMounted(() => {});
           color: white;
           text-align: center;
           button {
+            cursor: pointer;
             background-color: transparent;
             border: 1px solid white;
             padding: 1vh 2vw;
@@ -194,10 +206,6 @@ onMounted(() => {});
           }
           button:active {
             transform: scale(0.95);
-          }
-          p {
-            font-size: 12px;
-            margin: 10px 0 15px 0;
           }
         }
         .overlay_right_container {

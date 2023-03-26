@@ -1,137 +1,138 @@
 <template>
-  <div class="mask">
-    <div class="tool">
-      <div class="toolTop">
-        <el-icon
-          :size="40"
-          color="black"
-          @click="handleTool(BeChooseColor, Pen, isFill)"
-        >
-          <Back />
-        </el-icon>
-      </div>
-      <div class="toolContent">
-        <el-collapse v-model="activeNames">
-          <!-- material -->
-          <el-collapse-item
-            title="模型"
-            name="0"
+  <Transition>
+    <div class="mask">
+      <div class="tool">
+        <div class="toolTop">
+          <el-icon
+            :size="40"
+            color="black"
+            @click="handleTool(BeChooseColor, Pen, isFill)"
           >
-            <div class="mode">
-              <div
-                class="volumes"
-                v-for="(volume, index) in volumes"
-                :key="volume.name"
-                :index="index"
-              >
-                <article>{{ volume.name }}</article>
-                <span>
-                  <select v-model="Material">
+            <Back />
+          </el-icon>
+        </div>
+        <div class="toolContent">
+          <el-collapse v-model="activeNames">
+            <!-- material -->
+            <el-collapse-item
+              title="模型"
+              name="0"
+            >
+              <div class="mode">
+                <div
+                  class="volumes"
+                  v-for="(volume, index) in volumes"
+                  :key="volume.name"
+                  :index="index"
+                >
+                  <article>{{ volume.name }}</article>
+                  <span>
+                    <select v-model="Material">
+                      <option
+                        v-for="material in materials"
+                        :value="material"
+                        :selected="material == Material ? true : false"
+                        @click="handleMaterial(index, material)"
+                      >
+                        {{ material }}
+                      </option>
+                    </select>
+                  </span>
+                </div>
+                <div class="btn">
+                  <el-button
+                    type="primary"
+                    round
+                    @click="Start()"
+                  >
+                    推理
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    round
+                    @click="Reasoning()"
+                  >
+                    调整结果
+                  </el-button>
+                </div>
+              </div>
+            </el-collapse-item>
+            <!-- mouse -->
+            <el-collapse-item
+              title="右键功能"
+              name="1"
+            >
+              <el-radio-group v-model="Mouse">
+                <el-radio
+                  size="large"
+                  v-for="mouse in mouses"
+                  :key="mouse.id"
+                  :label="mouse.label"
+                  @click="handleMouse(mouse.id)"
+                ></el-radio>
+              </el-radio-group>
+            </el-collapse-item>
+            <!-- screen -->
+            <el-collapse-item
+              title="视图"
+              name="2"
+            >
+              <el-radio-group v-model="Screen">
+                <el-radio
+                  size="large"
+                  v-for="screen in screens"
+                  :key="screen.id"
+                  :label="screen.label"
+                  @click="handleScreen(screen.id)"
+                ></el-radio>
+              </el-radio-group>
+            </el-collapse-item>
+            <!-- drawing -->
+            <el-collapse-item
+              title="标注"
+              name="3"
+            >
+              <div>
+                <el-checkbox v-model="Pen">开启/关闭</el-checkbox>
+                <el-checkbox v-model="isFill">是否填充</el-checkbox>
+                <div class="selectBox">
+                  <select v-model="BeChooseColor">
                     <option
-                      v-for="material in materials"
-                      :value="material"
-                      :selected="material == Material ? true : false"
-                      @click="handleMaterial(index, material)"
+                      v-for="color in colors"
+                      :value="color.id"
+                      :selected="color.label == BeChooseColor ? true : false"
                     >
-                      {{ material }}
+                      {{ color.label }}
                     </option>
                   </select>
-                </span>
+                </div>
               </div>
-              <div class="btn">
+            </el-collapse-item>
+            <!-- save -->
+            <el-collapse-item
+              title="保存"
+              name="4"
+            >
+              <el-row class="mb-4">
                 <el-button
                   type="primary"
                   round
-                  @click="Start()"
+                  v-for="save in saves"
+                  @click="handleSave(save.id)"
                 >
-                  推理
+                  {{ save.label }}
                 </el-button>
-                <el-button
-                  type="primary"
-                  round
-                  @click="Reasoning()"
-                >
-                  调整结果
-                </el-button>
-              </div>
-            </div>
-          </el-collapse-item>
-          <!-- mouse -->
-          <el-collapse-item
-            title="右键功能"
-            name="1"
-          >
-            <el-radio-group v-model="Mouse">
-              <el-radio
-                size="large"
-                v-for="mouse in mouses"
-                :key="mouse.id"
-                :label="mouse.label"
-                @click="handleMouse(mouse.id)"
-              ></el-radio>
-            </el-radio-group>
-          </el-collapse-item>
-          <!-- screen -->
-          <el-collapse-item
-            title="视图"
-            name="2"
-          >
-            <el-radio-group v-model="Screen">
-              <el-radio
-                size="large"
-                v-for="screen in screens"
-                :key="screen.id"
-                :label="screen.label"
-                @click="handleScreen(screen.id)"
-              ></el-radio>
-            </el-radio-group>
-          </el-collapse-item>
-          <!-- drawing -->
-          <el-collapse-item
-            title="标注"
-            name="3"
-          >
-            <div>
-              <el-checkbox v-model="Pen">开启/关闭</el-checkbox>
-              <el-checkbox v-model="isFill">是否填充</el-checkbox>
-              <div class="selectBox">
-                <select v-model="BeChooseColor">
-                  <option
-                    v-for="color in colors"
-                    :value="color.id"
-                    :selected="color.label == BeChooseColor ? true : false"
-                  >
-                    {{ color.label }}
-                  </option>
-                </select>
-              </div>
-            </div>
-          </el-collapse-item>
-          <!-- save -->
-          <el-collapse-item
-            title="保存"
-            name="4"
-          >
-            <el-row class="mb-4">
-              <el-button
-                type="primary"
-                round
-                v-for="save in saves"
-                :key="save.id"
-                :id="save.id"
-                @click="handleSave(file.id)"
-                >{{ save.label }}
-              </el-button>
-            </el-row>
-          </el-collapse-item>
-        </el-collapse>
+              </el-row>
+            </el-collapse-item>
+          </el-collapse>
+        </div>
       </div>
+      <div
+        class="other"
+        @click="handleTool(BeChooseColor, Pen, isFill)"
+      ></div>
     </div>
-    <div
-      class="other"
-      @click="handleTool(BeChooseColor, Pen, isFill)"
-    ></div>
-  </div>
+  </Transition>
 </template>
 
 <script setup>
@@ -173,9 +174,8 @@ const colors = reactive([
   { id: "Erase", label: "橡皮" },
 ]);
 const saves = reactive([
-  { id: "SaveDocument", label: "带标注模型" },
-  { id: "SaveImage", label: "仅标注部分" },
-  { id: "SaveBitmap", label: "屏幕截图" },
+  { id: "Image", label: "仅保存标注部分" },
+  { id: "Bitmap", label: "页面截图" },
 ]);
 const materials = ref([
   "actc",
@@ -244,12 +244,9 @@ var BeChooseColor = ref("Red");
 var Pen = ref(false);
 var isFill = ref(false);
 var volumes = ref();
+
 // open option
 const activeNames = ref(["1", "2", "3", "4", "0"]);
-
-//
-function Start() {}
-function Reasoning() {}
 onBeforeMount(() => {
   volumes = getVolumesFile();
 });
@@ -264,7 +261,7 @@ onBeforeMount(() => {
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.377);
+  background-color: rgba(255, 255, 255, 0);
   z-index: 999;
   display: flex;
   flex-direction: row-reverse;
@@ -354,5 +351,13 @@ onBeforeMount(() => {
     width: 82vw;
     height: 100vh;
   }
+}
+.v-enter-active,
+.v-leave-active {
+  transition: transform 0.4s ease;
+}
+.v-enter-from,
+.v-leave-to {
+  transform: translateX(100%);
 }
 </style>

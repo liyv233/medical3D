@@ -1,15 +1,15 @@
 <template>
   <div class="aside">
     <el-menu
-      default-active="2"
+      :default-active="router.currentRoute.value.name"
       class="el-menu-vertical-demo"
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b"
-      :collapse="true"
-      :router="true"
+      collapse
+      router
     >
-      <el-menu-item index="">
+      <el-menu-item index="sign">
         <el-icon><User /></el-icon>
         <template #title>用户中心</template>
       </el-menu-item>
@@ -19,7 +19,7 @@
       </el-menu-item>
       <el-menu-item
         index="preview"
-        :disabled="isUpload"
+        v-show="volumes.length == 0 ? false : true"
       >
         <el-icon><View /></el-icon>
         <template #title>预览</template>
@@ -27,14 +27,21 @@
     </el-menu>
   </div>
 </template>
+
 <script setup>
+import { onMounted } from "vue";
 import { User } from "@element-plus/icons-vue";
-import { ref } from "vue";
-import { useAside } from "../store/Aside.js";
 import { storeToRefs } from "pinia";
-const Aside = useAside();
-const { isUpload } = storeToRefs(Aside);
+import { useTool } from "../store/Tool";
+import { useRouter } from "vue-router";
+// Tool Store
+const Tool = useTool();
+const { volumes } = storeToRefs(Tool);
+// Router
+const router = useRouter();
+onMounted(() => {});
 </script>
+
 <style lang="less" scoped>
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 6vw;
