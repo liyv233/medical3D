@@ -9,7 +9,7 @@
       collapse
       router
     >
-      <el-menu-item index="sign">
+      <el-menu-item index="user">
         <el-icon><User /></el-icon>
         <template #title>用户中心</template>
       </el-menu-item>
@@ -49,16 +49,18 @@ onMounted(() => {});
 }
 .el-menu-vertical-demo,
 .el-menu--collapse {
-  width: 3.5vw;
+  width: 3.4vw;
   min-height: 100vh;
 }
 .el-menu {
   height: 100vh;
   border-right: none;
-  .middle {
-    text-align: center;
-    display: flex;
-    justify-content: center;
+  .el-menu-item {
+    .el-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
 }
 </style>

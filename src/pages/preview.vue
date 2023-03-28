@@ -5,8 +5,9 @@
       :size="40"
       color="white"
       @click="handleTool()"
-      ><Setting
-    /></el-icon>
+    >
+      <Setting />
+    </el-icon>
     <div class="Canv">
       <canvas id="nv"></canvas>
     </div>
@@ -31,6 +32,7 @@ import { ElMessage } from "element-plus";
 // use Store
 const Tool = useTool();
 const router = useRouter();
+
 var { toolSwitch, lastPos, volumes } = storeToRefs(Tool);
 const { handleTool, CanvasInit, getVolumesFile } = Tool;
 // attach to canvas

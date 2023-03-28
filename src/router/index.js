@@ -1,5 +1,10 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-
+import { ElMessage } from "element-plus";
+import pinia from "../store/store";
+import { useUser } from "../store/User";
+import { storeToRefs } from "pinia";
+const User = useUser(pinia);
+const { isAuth } = storeToRefs(User);
 const routes = [
   {
     path: "/",
@@ -12,12 +17,44 @@ const routes = [
     component: () => import("../pages/preview.vue"),
   },
   {
+    path: "/user",
+    name: "user",
+    component: () => import("../pages/user.vue"),
+    meta: {
+      auth: true,
+    },
+  },
+  {
+    path: "/report",
+    name: "report",
+    component: () => import("../pages/report.vue"),
+    meta: {
+      auth: true,
+    },
+  },
+  {
     path: "/sign",
     name: "sign",
     component: () => import("../pages/sign.vue"),
   },
 ];
-export default createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes: routes,
 });
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.auth)) {
+    if (isAuth.value == false) {
+      ElMessage({
+        type: "error",
+        message: "请先登陆",
+      });
+      router.push("/sign");
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
+export default router;

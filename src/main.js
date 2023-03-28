@@ -1,7 +1,12 @@
 import { createApp } from "vue";
-import router from "./router/index";
 import App from "./App.vue";
-import { createPinia } from "pinia";
+// router
+import router from "./router/index";
+// store
+import store from "./store/store";
+// axios
+import Api from "./utils";
+// element ui相关
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import "element-plus/theme-chalk/el-loading.css";
 import "element-plus/theme-chalk/el-message.css";
@@ -10,6 +15,7 @@ const app = createApp(App);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }
-app.use(createPinia());
+app.config.globalProperties.$request = Api;
+app.use(store);
 app.use(router);
 app.mount("#app");

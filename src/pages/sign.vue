@@ -13,22 +13,25 @@
             name="username"
             id="username"
             placeholder="用户名"
+            v-model="Reg.username"
           />
           <input
             type="email"
             name="emal"
             id="email"
             placeholder="邮箱"
+            v-model="Reg.email"
           />
           <input
             type="password"
             name="password"
             id="password"
             placeholder="密码"
+            v-model="Reg.pwd"
           />
           <button
             class="signUp"
-            @click="SignUp"
+            @click="Register(Reg, container)"
           >
             注 册
           </button>
@@ -43,21 +46,24 @@
             name="emal"
             id="email"
             placeholder="邮箱"
+            v-model="In.email"
           />
           <input
             type="password"
             name="password"
             id="password"
             placeholder="密码"
+            v-model="In.pwd"
           />
-          <a
-            href="#"
+          <span
             class="forget-password"
-            >忘记密码?</a
-          >
+            @click="forget"
+            style="cursor: pointer"
+            >忘记密码?
+          </span>
           <button
             class="signIn"
-            @click="SignIn"
+            @click="SignIn(In)"
           >
             登 陆
           </button>
@@ -83,11 +89,20 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-import { useUser } from "../store/user";
-import { storeToRefs } from "pinia";
+import { onMounted, ref, reactive } from "vue";
+import { useUser } from "../store/User";
 const User = useUser();
-const { SignIn, SignUp } = User;
+const { SignIn, Register } = User;
+
+var In = reactive({
+  email: "",
+  pwd: "",
+});
+var Reg = reactive({
+  email: "",
+  username: "",
+  pwd: "",
+});
 
 // ref获取dom
 const container = ref(null);
@@ -97,7 +112,8 @@ function AddClass() {
 function RemoveClass() {
   container.value.classList.remove("active");
 }
-
+// 密码
+function forget() {}
 // onMounted --- debugger
 onMounted(() => {});
 </script>

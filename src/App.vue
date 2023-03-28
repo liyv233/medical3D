@@ -19,8 +19,8 @@ import Side from "./components/aside.vue";
 
 <style lang="less" scoped>
 .el-main {
+  background-color: aliceblue;
   padding: 0;
   margin: 0;
-  background-image: linear-gradient(45deg, #93a5cf 0%, #e4efe9 100%);
 }
 </style>

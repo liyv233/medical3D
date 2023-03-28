@@ -10,6 +10,7 @@
         :on-change="AddVolumesFile"
         :on-remove="RemoveVolumesFile"
         action="none"
+        accept=".nii,.nii.gz,.dcm,.raw,.mhd"
       >
         <el-icon class="el-icon--upload"><upload-filled /></el-icon>
         <div class="el-upload__text">拖拽文件或者<em>点击上传</em></div>
@@ -29,24 +30,21 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
+<script setup>
 import { onMounted, ref } from "vue";
 import { UploadFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-import { useAside } from "../store/Aside.js";
 import { useTool } from "../store/Tool";
 import { ElMessage } from "element-plus";
 const Tool = useTool();
-const Aside = useAside();
-const { handlePreView } = Aside;
 const { getVolumesFile, AddVolumesFile, RemoveVolumesFile } = Tool;
 
 const router = useRouter();
+
 function HandleSubmit() {
   const Volumes = getVolumesFile();
   if (Volumes.value.length) {
     router.push("/preview");
-    handlePreView();
   } else {
     ElMessage({
       type: "warning",
@@ -68,7 +66,7 @@ onMounted(() => {});
     align-items: center;
     flex-direction: column;
     .upload-demo {
-      background: rgba(255, 255, 255, 0.205);
+      background-image: linear-gradient(45deg, #93a5cf 0%, #e4efe9 100%);
       border-radius: 25px;
       width: 50vw;
       height: 60vh;
