@@ -25,16 +25,19 @@
                   :key="volume.name"
                   :index="index"
                 >
-                  <article>{{ volume.name }}</article>
+                  <article>推理前模型</article>
                   <span>
-                    <select v-model="Material">
+                    <select
+                      v-model="Material"
+                      style="width: 5vw"
+                    >
                       <option
                         v-for="material in materials"
-                        :value="material"
-                        :selected="material == Material ? true : false"
-                        @click="handleMaterial(index, material)"
+                        :value="material.id"
+                        :selected="material.id == Material ? true : false"
+                        @click="handleMaterial(index, material.id)"
                       >
-                        {{ material }}
+                        {{ material.label }}
                       </option>
                     </select>
                   </span>
@@ -42,14 +45,12 @@
                 <div class="btn">
                   <el-button
                     type="primary"
-                    round
                     @click="Start()"
                   >
                     推理
                   </el-button>
                   <el-button
                     type="primary"
-                    round
                     @click="Reasoning()"
                   >
                     调整结果
@@ -116,7 +117,6 @@
               <el-row class="mb-4">
                 <el-button
                   type="primary"
-                  round
                   v-for="save in saves"
                   @click="handleSave(save.id)"
                 >
@@ -178,63 +178,8 @@ const saves = reactive([
   { id: "Bitmap", label: "页面截图" },
 ]);
 const materials = ref([
-  "actc",
-  "bcgwhw",
-  "bcgwhw_dark",
-  "blue",
-  "blue2red",
-  "bluern",
-  "bone",
-  "bronze",
-  "cividis",
-  "cool",
-  "copper",
-  "copper2",
-  "ct_airways",
-  "ct_artery",
-  "ct_bones",
-  "ct_brain",
-  "ct_brain_gray",
-  "ct_cardiac",
-  "ct_head",
-  "ct_kidneys",
-  "ct_liver",
-  "ct_muscles",
-  "ct_scalp",
-  "ct_skull",
-  "ct_soft",
-  "ct_soft_tissue",
-  "ct_surface",
-  "ct_vessels",
-  "ct_w_contrast",
-  "cubehelix",
-  "electric_blue",
-  "freesurfer",
-  "ge_color",
-  "gold",
-  "gray",
-  "green",
-  "hot",
-  "hotiron",
-  "hsv",
-  "inferno",
-  "jet",
-  "linspecer",
-  "magma",
-  "mako",
-  "nih",
-  "plasma",
-  "random",
-  "red",
-  "redyell",
-  "rocket",
-  "surface",
-  "turbo",
-  "violet",
-  "viridis",
-  "warm",
-  "winter",
-  "x_rain",
+  { id: "freesurfer", label: "彩图" },
+  { id: "gray", label: "灰度" },
 ]);
 // model
 var Material = ref("gray");
@@ -332,8 +277,8 @@ onBeforeMount(() => {
                 }
               }
               article {
-                width: 40%;
-                font-size: 20px;
+                width: 80%;
+                font-size: 18px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;

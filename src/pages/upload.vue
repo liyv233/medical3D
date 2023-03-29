@@ -31,7 +31,7 @@
   </div>
 </template>
 <script setup>
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { UploadFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { useTool } from "../store/Tool";
@@ -53,7 +53,6 @@ function HandleSubmit() {
     });
   }
 }
-onMounted(() => {});
 </script>
 <style lang="less" scoped>
 .upload {
