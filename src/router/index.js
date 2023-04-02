@@ -45,10 +45,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.auth)) {
     if (isAuth.value == false) {
-      ElMessage({
-        type: "error",
-        message: "请先登陆",
-      });
+      ElMessage.error("请先登陆");
       router.push("/sign");
     } else {
       next();

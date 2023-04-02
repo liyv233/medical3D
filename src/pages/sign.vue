@@ -1,5 +1,8 @@
 <template>
-  <div class="Sign">
+  <div
+    class="Sign"
+    v-loading="loading"
+  >
     <div
       class="container"
       ref="container"
@@ -10,28 +13,22 @@
           <h2>注 册</h2>
           <input
             type="text"
-            name="username"
-            id="username"
             placeholder="用户名"
             v-model="Reg.username"
           />
           <input
-            type="email"
-            name="emal"
-            id="email"
-            placeholder="邮箱"
-            v-model="Reg.email"
+            type="tel"
+            placeholder="手机号"
+            v-model="Reg.phone"
           />
           <input
             type="password"
-            name="password"
-            id="password"
             placeholder="密码"
-            v-model="Reg.pwd"
+            v-model="Reg.password"
           />
           <button
             class="signUp"
-            @click="Register(Reg, container)"
+            @click="Register(Reg)"
           >
             注 册
           </button>
@@ -42,18 +39,14 @@
         <div class="form">
           <h2>登 陆</h2>
           <input
-            type="email"
-            name="emal"
-            id="email"
-            placeholder="邮箱"
-            v-model="In.email"
+            type="tel"
+            placeholder="手机号"
+            v-model="In.phone"
           />
           <input
             type="password"
-            name="password"
-            id="password"
             placeholder="密码"
-            v-model="In.pwd"
+            v-model="In.password"
           />
           <span
             class="forget-password"
@@ -89,20 +82,13 @@
 </template>
 
 <script setup>
-import { onMounted, ref, reactive } from "vue";
+import { useRouter } from "vue-router";
+import { storeToRefs } from "pinia";
+import { ref, reactive, getCurrentInstance } from "vue";
 import { useUser } from "../store/User";
+import { ElMessage } from "element-plus";
 const User = useUser();
-const { SignIn, Register } = User;
-
-var In = reactive({
-  email: "",
-  pwd: "",
-});
-var Reg = reactive({
-  email: "",
-  username: "",
-  pwd: "",
-});
+const { isAuth } = storeToRefs(User);
 
 // ref获取dom
 const container = ref(null);
@@ -112,10 +98,62 @@ function AddClass() {
 function RemoveClass() {
   container.value.classList.remove("active");
 }
+// 登陆、注册
+const router = useRouter();
+var In = reactive({
+  phone: "",
+  password: "",
+});
+var Reg = reactive({
+  username: "",
+  phone: "",
+  password: "",
+});
+
+const instance = getCurrentInstance();
+
+var loading = ref(false);
+async function SignIn(In) {
+  loading.value = true;
+  let data = new FormData();
+  for (let i in In) {
+    data.append(i, In[i]);
+  }
+  const response = await instance.proxy.$request.post("/login", data);
+  loading.value = false;
+  if (response.data._Result__code == 200) {
+    ElMessage.success("登陆成功，即将跳转");
+    router.push("/user");
+    isAuth.value = true;
+  } else if (response.data._Result__code == 201) {
+    if (response.data._Result__msg == "用户名或者密码错误！")
+      ElMessage.error("账号或者密码错误！");
+    else ElMessage.error("该用户不存在！");
+  } else {
+    ElMessage.error("出错了");
+  }
+}
+// 注册
+async function Register(Reg) {
+  loading.value = true;
+  var data = new FormData();
+  for (let i in Reg) {
+    data.append(i, Reg[i]);
+  }
+  const response = await instance.proxy.$request.post("/register", data);
+  loading.value = false;
+  if (response.data._Result__code == 200) {
+    ElMessage.success("注册成功，将为你跳转到登陆界面。");
+    container.value.classList.remove("active");
+  } else if (response.data._Result__code == 201) {
+    ElMessage.error("该用户已经存在。");
+    container.value.classList.remove("active");
+  } else {
+    ElMessage.error("出错了");
+  }
+}
 // 密码
 function forget() {}
-// onMounted --- debugger
-onMounted(() => {});
 </script>
 
 <style lang="less" scoped>

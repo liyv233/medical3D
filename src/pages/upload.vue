@@ -31,16 +31,14 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, getCurrentInstance } from "vue";
 import { UploadFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { useTool } from "../store/Tool";
 import { ElMessage } from "element-plus";
 const Tool = useTool();
 const { getVolumesFile, AddVolumesFile, RemoveVolumesFile } = Tool;
-
 const router = useRouter();
-
 function HandleSubmit() {
   const Volumes = getVolumesFile();
   if (Volumes.value.length) {

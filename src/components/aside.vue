@@ -29,7 +29,6 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
 import { User } from "@element-plus/icons-vue";
 import { storeToRefs } from "pinia";
 import { useTool } from "../store/Tool";
@@ -39,7 +38,6 @@ const Tool = useTool();
 const { volumes } = storeToRefs(Tool);
 // Router
 const router = useRouter();
-onMounted(() => {});
 </script>
 
 <style lang="less" scoped>
