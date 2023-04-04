@@ -18,22 +18,39 @@
       </div>
     </div>
   </div>
+  <!-- tool -->
   <tool v-show="toolSwitch"></tool>
+  <!-- dialog -->
+  <el-dialog v-model="dialogVisible">
+    <report></report>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button
+          type="primary"
+          @click="handleMakePDF"
+        >
+          确 定
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
 import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useTool } from "../store/Tool.js";
-import tool from "../components/tool.vue";
 import { NVImage } from "@niivue/niivue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
+import tool from "../components/tool.vue";
+import report from "../pages/report.vue";
+import Bus from "../utils/eventbus";
 // use Store
 const Tool = useTool();
 const router = useRouter();
-
-var { toolSwitch, lastPos, volumes } = storeToRefs(Tool);
+var { toolSwitch, lastPos, volumes, dialogVisible } = storeToRefs(Tool);
 const { handleTool, CanvasInit, getVolumesFile } = Tool;
 // attach to canvas
 async function Attach() {
@@ -43,7 +60,12 @@ async function Attach() {
   const nvimage = await NVImage.loadFromFile({ file: file.value[0].raw });
   Views.addVolume(nvimage);
 }
-
+// 组件通信
+function handleMakePDF() {
+  const flag = Bus.emit("makepdf");
+  if (flag) dialogVisible.value = false;
+}
+// onMounted
 onMounted(async () => {
   if (volumes.value.length == 0) {
     ElMessage({
