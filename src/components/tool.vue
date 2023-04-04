@@ -124,6 +124,20 @@
                 </el-button>
               </el-row>
             </el-collapse-item>
+            <!-- 报告导出 -->
+            <el-collapse-item
+              title="导出报告"
+              name="5"
+            >
+              <el-row class="mb-4">
+                <el-button
+                  type="primary"
+                  @click="dialogVisible = true"
+                >
+                  生成报告
+                </el-button>
+              </el-row>
+            </el-collapse-item>
           </el-collapse>
         </div>
       </div>
@@ -138,6 +152,7 @@
 <script setup>
 import { ref, reactive, onBeforeMount } from "vue";
 import { useTool } from "../store/Tool.js";
+import { storeToRefs } from "pinia";
 // pinia
 const Tool = useTool();
 const {
@@ -148,6 +163,7 @@ const {
   handleMaterial,
   getVolumesFile,
 } = Tool;
+const { dialogVisible } = storeToRefs(Tool);
 // some define about tool
 const mouses = reactive([
   { id: "none", label: "无" },
@@ -191,7 +207,7 @@ var isFill = ref(false);
 var volumes = ref();
 
 // open option
-const activeNames = ref(["1", "2", "3", "4", "0"]);
+const activeNames = ref(["1", "2", "3", "4", "5", "0"]);
 onBeforeMount(() => {
   volumes = getVolumesFile();
 });

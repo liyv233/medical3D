@@ -89,8 +89,7 @@ import { useUser } from "../store/User";
 import { ElMessage } from "element-plus";
 const User = useUser();
 const { isAuth } = storeToRefs(User);
-
-// ref获取dom
+const { setUserInfo } = User;
 const container = ref(null);
 function AddClass() {
   container.value.classList.add("active");
@@ -109,9 +108,9 @@ var Reg = reactive({
   phone: "",
   password: "",
 });
-
 const instance = getCurrentInstance();
 
+// 登陆
 var loading = ref(false);
 async function SignIn(In) {
   loading.value = true;
@@ -120,7 +119,11 @@ async function SignIn(In) {
     data.append(i, In[i]);
   }
   const response = await instance.proxy.$request.post("/login", data);
+  console.log(response);
+  const { _Result__data } = response.data;
   loading.value = false;
+  // 用户数据
+  setUserInfo(_Result__data, response.data._Result__msg);
   if (response.data._Result__code == 200) {
     ElMessage.success("登陆成功，即将跳转");
     router.push("/user");

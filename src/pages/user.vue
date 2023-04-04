@@ -5,8 +5,7 @@
         <div class="user">
           <img src="vite.svg" />
           <div class="info">
-            <span class="name">Admin</span>
-            <span class="role">管理员</span>
+            <span class="name">{{ UserInfo.username }}</span>
           </div>
         </div>
         <div
@@ -14,16 +13,12 @@
           style="border-top: 2px solid #aaa; margin-top: 3vh; padding-top: 3vh"
         >
           <span>
-            姓名：
-            <p>123131</p>
-          </span>
-          <span>
             工号：
-            <p>123123</p>
+            <p>{{ UserInfo.work_no }}</p>
           </span>
           <span>
             科室：
-            <p>123123</p>
+            <p>{{ UserInfo.d_name }}</p>
           </span>
         </div>
       </el-card>
@@ -62,7 +57,11 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { storeToRefs } from "pinia";
+import { useUser } from "../store/User";
+const User = useUser();
+const { UserInfo } = storeToRefs(User);
+
 const tableData = [
   {
     date: "2016-05-03",
@@ -85,7 +84,6 @@ const tableData = [
     record: "No. 189, Grove St, Los Angeles",
   },
 ];
-onMounted(() => {});
 </script>
 
 <style lang="less" scoped>
@@ -107,10 +105,6 @@ onMounted(() => {});
           margin-left: 4vw;
           .name {
             font-size: 32px;
-          }
-          .role {
-            margin-top: 1vh;
-            color: #aaa;
           }
         }
       }

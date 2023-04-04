@@ -1,11 +1,11 @@
-import { createApp } from "vue";
+import { createApp, defineComponent, VueElement } from "vue";
 import App from "./App.vue";
 // router
 import router from "./router/index";
 // store
 import store from "./store/store";
 // axios
-import Api from "./utils";
+import Api from "./utils/request";
 // element ui相关
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import "element-plus/theme-chalk/el-loading.css";

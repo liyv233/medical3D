@@ -3,11 +3,12 @@
     <el-menu
       :default-active="router.currentRoute.value.name"
       class="el-menu-vertical-demo"
-      background-color="#545c64"
+      background-color="#545c84"
       text-color="#fff"
-      active-text-color="#ffd04b"
+      active-text-color="#ffd523"
       collapse
       router
+      style="position: relative"
     >
       <el-menu-item index="user">
         <el-icon><User /></el-icon>
@@ -19,10 +20,18 @@
       </el-menu-item>
       <el-menu-item
         index="preview"
-        v-show="volumes.length == 0 ? false : true"
+        v-show="volumes.length"
       >
         <el-icon><View /></el-icon>
         <template #title>预览</template>
+      </el-menu-item>
+      <el-menu-item
+        v-show="isAuth"
+        class="bottom"
+        @click="handleLogOut"
+      >
+        <el-icon><Close /></el-icon>
+        <template #title>登出</template>
       </el-menu-item>
     </el-menu>
   </div>
@@ -33,9 +42,13 @@ import { User } from "@element-plus/icons-vue";
 import { storeToRefs } from "pinia";
 import { useTool } from "../store/Tool";
 import { useRouter } from "vue-router";
+import { useUser } from "../store/User";
 // Tool Store
 const Tool = useTool();
+const UserStore = useUser();
 const { volumes } = storeToRefs(Tool);
+const { isAuth } = storeToRefs(UserStore);
+const { handleLogOut } = UserStore;
 // Router
 const router = useRouter();
 </script>
@@ -47,7 +60,7 @@ const router = useRouter();
 }
 .el-menu-vertical-demo,
 .el-menu--collapse {
-  width: 3.4vw;
+  max-width: 3.4vw;
   min-height: 100vh;
 }
 .el-menu {
@@ -59,6 +72,11 @@ const router = useRouter();
       justify-content: center;
       align-items: center;
     }
+  }
+  .bottom {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
   }
 }
 </style>

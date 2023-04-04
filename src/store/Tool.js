@@ -169,6 +169,8 @@ export const useTool = defineStore("tool", () => {
   function getViews() {
     return Views;
   }
+  // 生成报告
+  const dialogVisible = ref(false);
   return {
     CanvasInit,
     handleIntensityChange,
@@ -185,5 +187,6 @@ export const useTool = defineStore("tool", () => {
     toolSwitch,
     lastPos,
     volumes,
+    dialogVisible,
   };
 });

@@ -25,14 +25,6 @@ const routes = [
     },
   },
   {
-    path: "/report",
-    name: "report",
-    component: () => import("../pages/report.vue"),
-    meta: {
-      auth: true,
-    },
-  },
-  {
     path: "/sign",
     name: "sign",
     component: () => import("../pages/sign.vue"),

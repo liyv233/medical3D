@@ -11,6 +11,9 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
     "element-plus": "^2.2.35",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "mitt": "^3.0.0",
     "pinia": "^2.0.33",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
