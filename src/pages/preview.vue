@@ -9,7 +9,14 @@
       <Setting />
     </el-icon>
     <div class="Canv">
-      <canvas id="nv"></canvas>
+      <canvas
+        id="nv1"
+        v-show="!isInference"
+      ></canvas>
+      <canvas
+        id="nv2"
+        v-show="isInference"
+      ></canvas>
     </div>
     <div class="port">
       <div class="pos">
@@ -21,50 +28,45 @@
   <!-- tool -->
   <tool v-show="toolSwitch"></tool>
   <!-- dialog -->
-  <el-dialog v-model="dialogVisible">
-    <report></report>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button
-          type="primary"
-          @click="handleMakePDF"
-        >
-          确 定
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useTool } from "../store/Tool.js";
 import { NVImage } from "@niivue/niivue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
+import { useUser } from "../store/user";
 import tool from "../components/tool.vue";
-import report from "../pages/report.vue";
 import Bus from "../utils/eventbus";
 // use Store
+const userStore = useUser();
+const { isInference } = storeToRefs(userStore);
 const Tool = useTool();
 const router = useRouter();
-var { toolSwitch, lastPos, volumes, dialogVisible } = storeToRefs(Tool);
-const { handleTool, CanvasInit, getVolumesFile } = Tool;
+var { toolSwitch, lastPos, volumes } = storeToRefs(Tool);
+const { handleTool, getVolumesFile, CanvasInit } = Tool;
 // attach to canvas
+var View = CanvasInit();
 async function Attach() {
   const file = getVolumesFile();
-  const Views = CanvasInit();
-  Views.attachTo("nv");
-  const nvimage = await NVImage.loadFromFile({ file: file.value[0].raw });
-  Views.addVolume(nvimage);
+  // const View = CanvasInit();
+  View.attachTo("nv1");
+  const nvimage = await NVImage.loadFromFile({ file: file[0].raw });
+  View.addVolume(nvimage);
 }
 // 组件通信
-function handleMakePDF() {
-  const flag = Bus.emit("makepdf");
-  if (flag) dialogVisible.value = false;
-}
+
+Bus.on("selectView", async (url, param) => {
+  console.log(url);
+  console.log(param);
+
+  View = CanvasInit();
+  View.attachTo("nv2");
+  const nvimage = await NVImage.loadFromUrl({ url });
+  View.addVolume(nvimage);
+});
 // onMounted
 onMounted(async () => {
   if (volumes.value.length == 0) {

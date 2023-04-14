@@ -118,8 +118,8 @@ async function SignIn(In) {
   for (let i in In) {
     data.append(i, In[i]);
   }
+  console.log(data);
   const response = await instance.proxy.$request.post("/login", data);
-  console.log(response);
   const { _Result__data } = response.data;
   loading.value = false;
   // 用户数据

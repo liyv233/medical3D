@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import { ElMessage } from "element-plus";
 import pinia from "../store/store";
-import { useUser } from "../store/User";
+import { useUser } from "../store/user";
 import { storeToRefs } from "pinia";
 const User = useUser(pinia);
 const { isAuth } = storeToRefs(User);

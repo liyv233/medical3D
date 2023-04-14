@@ -1,6 +1,9 @@
 <template>
   <Transition>
-    <div class="mask">
+    <div
+      class="mask"
+      v-loading="loading"
+    >
       <div class="tool">
         <div class="toolTop">
           <el-icon
@@ -19,11 +22,10 @@
               name="0"
             >
               <div class="mode">
+                <!-- 推理前 -->
                 <div
                   class="volumes"
-                  v-for="(volume, index) in volumes"
-                  :key="volume.name"
-                  :index="index"
+                  v-show="!isInference"
                 >
                   <article>推理前模型</article>
                   <span>
@@ -35,25 +37,92 @@
                         v-for="material in materials"
                         :value="material.id"
                         :selected="material.id == Material ? true : false"
-                        @click="handleMaterial(index, material.id)"
+                        @click="handleMaterial(0, material.id)"
                       >
                         {{ material.label }}
                       </option>
                     </select>
                   </span>
                 </div>
+                <!-- 推理后 -->
+                <div
+                  class="volumes"
+                  v-show="isInference"
+                >
+                  <article>推理完成模型</article>
+                  <span>
+                    <select
+                      v-model="afterMaterial"
+                      style="width: 5vw"
+                    >
+                      <option
+                        v-for="material in materials"
+                        :value="material.id"
+                        :selected="material.id == Material ? true : false"
+                        @click="handleMaterial(0, material.id)"
+                      >
+                        {{ material.label }}
+                      </option>
+                    </select>
+                  </span>
+                </div>
+                <!-- 按钮 -->
                 <div class="btn">
                   <el-button
                     type="primary"
-                    @click="Start()"
+                    @click="Reasoning()"
+                    v-show="!isInference"
                   >
                     推理
                   </el-button>
                   <el-button
                     type="primary"
-                    @click="Reasoning()"
+                    @click="uploadDialog = true"
+                    v-show="isInference"
                   >
-                    调整结果
+                    标注合成
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    @click="keepMaxArea"
+                    v-show="isInference"
+                  >
+                    保留最大连通域
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    v-show="isInference"
+                    @click="pyVisable = true"
+                  >
+                    后处理脚本上传
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    @click="countNum"
+                    v-show="isInference"
+                  >
+                    器官计数
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    v-show="isInference"
+                    @click="getVolume"
+                  >
+                    器官体积测量
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    v-show="isInference"
+                    @click="getArea"
+                  >
+                    器官面积测量
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    v-show="isInference"
+                    @click="getDia"
+                  >
+                    器官直径测量
                   </el-button>
                 </div>
               </div>
@@ -145,25 +214,110 @@
         class="other"
         @click="handleTool(BeChooseColor, Pen, isFill)"
       ></div>
+      <!-- 后处理 -->
+      <el-dialog
+        v-model="pyVisable"
+        title="后处理脚本上传"
+        style="position: relative"
+      >
+        <el-upload
+          class="upload-demo upload"
+          :multiple="false"
+          :on-change="changePyFile"
+          :limit="1"
+          :auto-upload="false"
+          action="none"
+          accept=".py"
+        >
+          <el-button type="primary">点击上传</el-button>
+          <template #tip>
+            <div
+              class="el-upload__tip"
+              style="font-size: 18px; margin-top: 4vh"
+            >
+              请上传后处理脚本
+            </div>
+          </template>
+        </el-upload>
+        <el-button
+          type="primary"
+          style="position: absolute; bottom: 10px; right: 10px"
+          @click="uploadAfterFile"
+        >
+          确定
+        </el-button>
+      </el-dialog>
+      <!-- 合并标注 -->
+      <el-dialog
+        v-model="uploadDialog"
+        title="合并标注"
+        style="position: relative"
+      >
+        <el-upload
+          class="upload-demo upload"
+          :multiple="false"
+          :on-change="changeNewfile"
+          :limit="1"
+          :auto-upload="false"
+          action="none"
+          accept=".nii"
+        >
+          <el-button type="primary">点击上传</el-button>
+          <template #tip>
+            <div
+              class="el-upload__tip"
+              style="font-size: 18px; margin-top: 4vh"
+            >
+              请选在模型图中标注出区域并获取文件
+            </div>
+          </template>
+        </el-upload>
+        <el-button
+          type="primary"
+          style="position: absolute; bottom: 10px; right: 10px"
+          @click="makeAll"
+        >
+          确定
+        </el-button>
+      </el-dialog>
+      <!-- 文档生成 -->
+      <el-dialog v-model="dialogVisible">
+        <report></report>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button
+              type="primary"
+              @click="handleMakePDF"
+            >
+              确 定
+            </el-button>
+          </span>
+        </template>
+      </el-dialog>
     </div>
   </Transition>
 </template>
 
 <script setup>
-import { ref, reactive, onBeforeMount } from "vue";
 import { useTool } from "../store/Tool.js";
+import { ref, reactive, getCurrentInstance } from "vue";
 import { storeToRefs } from "pinia";
+import { useUser } from "../store/user";
+import { ElMessage } from "element-plus";
+import Bus from "../utils/eventbus";
+import { ElNotification } from "element-plus";
+import report from "../pages/report.vue";
+// request
+const request = getCurrentInstance().proxy.$request;
 // pinia
+const loading = ref(false);
+const userStore = useUser();
 const Tool = useTool();
-const {
-  handleSave,
-  handleScreen,
-  handleMouse,
-  handleTool,
-  handleMaterial,
-  getVolumesFile,
-} = Tool;
-const { dialogVisible } = storeToRefs(Tool);
+const { isInference } = storeToRefs(userStore);
+const { handleSave, handleScreen, handleMouse, handleTool, handleMaterial } =
+  Tool;
+const { dialogVisible, volumes, imgName, lastPos } = storeToRefs(Tool);
 // some define about tool
 const mouses = reactive([
   { id: "none", label: "无" },
@@ -198,19 +352,253 @@ const materials = ref([
   { id: "gray", label: "灰度" },
 ]);
 // model
+var afterMaterial = ref("gray");
 var Material = ref("gray");
 var Mouse = ref("无");
 var Screen = ref("全部展示");
 var BeChooseColor = ref("Red");
 var Pen = ref(false);
 var isFill = ref(false);
-var volumes = ref();
-
-// open option
 const activeNames = ref(["1", "2", "3", "4", "5", "0"]);
-onBeforeMount(() => {
-  volumes = getVolumesFile();
-});
+
+// 文件打印
+function handleMakePDF() {
+  const flag = Bus.emit("makepdf");
+  if (flag) dialogVisible.value = false;
+}
+// 推理
+var base_url = "";
+var img_name = "";
+async function Reasoning() {
+  loading.value = true;
+  var data = new FormData();
+  var currentFile = volumes.value[0].raw;
+  data.append("file", currentFile);
+  const res = await fetch("http://10.33.116.50:5000/imgs", {
+    method: "POST",
+    body: data,
+  });
+  res.json().then((data) => {
+    if (data._Result__code == 200) {
+      base_url = data._Result__data.base_url;
+      img_name = data._Result__data.img_name;
+      ElMessage.success("上传成功,请稍等...");
+      isInference.value = true;
+      let ii = "" + data._Result__data.img_id;
+      let filePath = "http://10.33.116.50:5000" + base_url + img_name;
+      Bus.emit("selectView", filePath, ii);
+      loading.value = false;
+    } else {
+      loading.value = false;
+      ElMessage.error("上传失败了");
+    }
+  });
+}
+// 合并标注
+var uploadDialog = ref(false);
+var newFile;
+function changeNewfile(file) {
+  newFile = file;
+}
+async function makeAll() {
+  loading.value = true;
+  var formData = new FormData();
+  formData.append("file", newFile.raw);
+  formData.append("img_name", img_name);
+  const res = await fetch("http://10.33.116.50:5000/imgs/graphs", {
+    method: "POST",
+    body: formData,
+  });
+  res.json().then((data) => {
+    console.log(data);
+    if (data._Result__code == 200) {
+      base_url = data._Result__data.base_url;
+      img_name = data._Result__data.img_name;
+      ElMessage.success("上传成功,请稍等...");
+      isInference.value = true;
+      let filePath = "http://10.33.116.50:5000" + base_url + img_name;
+      Bus.emit("selectView", filePath, "");
+      loading.value = false;
+      uploadDialog.value = false;
+    } else {
+      ElMessage.error("上传失败了");
+      loading.value = false;
+      uploadDialog.value = false;
+    }
+  });
+}
+// 保留最大连通域
+async function keepMaxArea() {
+  var formData = new FormData();
+  formData.append("img_name", imgName);
+  formData.append("x", lastPos.value.vox[0]);
+  formData.append("y", lastPos.value.vox[1]);
+  formData.append("z", lastPos.value.vox[2]);
+  const res = await fetch("http://10.33.116.50:5000/imgs/domains", {
+    method: "POST",
+    body: formData,
+  });
+  res.json().then((data) => {
+    console.log(data);
+    if (data._Result__code == 200) {
+      base_url = data._Result__data.base_url;
+      img_name = data._Result__data.img_name;
+      ElMessage.success("上传成功,请稍等...");
+      isInference.value = true;
+      let ii = "" + data._Result__data.img_id;
+      let filePath = "http://10.33.116.50:5000" + base_url + img_name;
+      Bus.emit("selectView", filePath, ii);
+      loading.value = false;
+    } else {
+      ElMessage.error("上传失败了");
+      loading.value = false;
+    }
+  });
+}
+// 预处理上传
+var pyFile;
+var pyVisable = ref(false);
+function changePyFile(file) {
+  pyFile = file;
+}
+async function uploadAfterFile() {
+  loading.value = true;
+  var formData = new FormData();
+  formData.append("file", pyFile.raw);
+  formData.append("img_name", img_name);
+  const res = await fetch("http://10.33.116.50:5000/imgs/option", {
+    method: "POST",
+    body: formData,
+  });
+  res.json().then((data) => {
+    if (data._Result__code == 200) {
+      base_url = data._Result__data.base_url;
+      img_name = data._Result__data.img_name;
+      ElMessage.success("上传成功,请稍等...");
+      let filePath = "http://10.33.116.50:5000" + base_url + img_name;
+      Bus.emit("selectView", filePath);
+      isInference.value = true;
+      loading.value = false;
+      pyVisable.value = false;
+    } else {
+      ElMessage.error("上传失败了");
+      loading.value = false;
+      pyVisable.value = false;
+    }
+  });
+}
+// 器官计算
+var numStr = "";
+async function countNum() {
+  loading.value = true;
+  var data = new FormData();
+  data.append("img_name", imgName.value);
+  const res = await fetch("http://10.33.116.50:5000/imgs/nums", {
+    method: "POST",
+    body: data,
+  });
+  res.json().then((data) => {
+    console.log(data);
+    if (data._Result__code == 200) {
+      const { _Result__data } = data;
+      numStr = _Result__data.description;
+      loading.value = false;
+      ElNotification({
+        title: "器官个数",
+        type: "Success",
+        position: "top-left",
+        message: numStr,
+      });
+    } else {
+      ElMessage.error("发生错误");
+      loading.value = false;
+    }
+  });
+}
+// 面积
+async function getArea() {
+  loading.value = true;
+  let data = new FormData();
+  data.append("img_name", imgName.value);
+  data.append("x", lastPos.value.vox[0]);
+  data.append("y", lastPos.value.vox[1]);
+  data.append("z", lastPos.value.vox[2]);
+  const res = await fetch("http://10.33.116.50:5000/imgs/area", {
+    method: "POST",
+    body: data,
+  });
+  res.json().then((data) => {
+    console.log(data);
+    if (data._Result__code == 200) {
+      var str = data._Result__data.area;
+      loading.value = false;
+      ElNotification({
+        title: "面积",
+        type: "Success",
+        position: "top-left",
+        message: str,
+      });
+    } else {
+      ElMessage.error("发生错误");
+      loading.value = false;
+    }
+  });
+}
+// 体积
+async function getVolume() {
+  loading.value = true;
+  let data = new FormData();
+  data.append("img_name", imgName.value);
+  const res = await fetch("http://10.33.116.50:5000/imgs/volume", {
+    method: "POST",
+    body: data,
+  });
+  res.json().then((data) => {
+    console.log(data);
+
+    if (data._Result__code == 200) {
+      var str = data._Result__data.volumes;
+      // str = str.replace(" ", "\n");
+      loading.value = false;
+      ElNotification({
+        title: "体积",
+        type: "Success",
+        position: "top-left",
+        message: str,
+      });
+    } else {
+      ElMessage.error("发生错误");
+      loading.value = false;
+    }
+  });
+}
+// 直径
+async function getDia() {
+  loading.value = true;
+  let data = new FormData();
+  data.append("img_name", imgName.value);
+  const res = await fetch("http://10.33.116.50:5000/imgs/?", {
+    method: "POST",
+    body: data,
+  });
+  res.json().then((data) => {
+    console.log(data);
+
+    if (data._Result__code == 200) {
+      // var str = data._Result__data.volumes;
+      loading.value = false;
+      ElNotification({
+        title: "体积",
+        type: "Success",
+        position: "top-left",
+        message: str,
+      });
+    } else {
+      ElMessage.error("发生错误");
+      loading.value = false;
+    }
+  });
+}
 </script>
 
 <style lang="less" scoped>
@@ -228,7 +616,7 @@ onBeforeMount(() => {
   flex-direction: row-reverse;
   .tool {
     scrollbar-width: none;
-    overflow: scroll;
+    overflow-y: scroll;
     background-color: white;
     width: 18vw;
     height: 100vh;
@@ -240,6 +628,13 @@ onBeforeMount(() => {
       }
     }
     .toolContent {
+      .mode {
+        .btn {
+          display: flex;
+          align-items: center;
+          flex-direction: column;
+        }
+      }
       .el-collapse {
         .el-collapse-item {
           :deep(.el-collapse-item__header) {
@@ -320,5 +715,14 @@ onBeforeMount(() => {
 .v-enter-from,
 .v-leave-to {
   transform: translateX(100%);
+}
+.upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+:deep(.el-upload-list__item-info) {
+  width: 5vw;
 }
 </style>

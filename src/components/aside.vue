@@ -26,11 +26,11 @@
         <template #title>预览</template>
       </el-menu-item>
       <el-menu-item
+        index=""
         v-show="isAuth"
         class="bottom"
-        @click="handleLogOut"
       >
-        <el-icon><Close /></el-icon>
+        <el-icon><Close @click="logout"/></el-icon>
         <template #title>登出</template>
       </el-menu-item>
     </el-menu>
@@ -43,14 +43,28 @@ import { storeToRefs } from "pinia";
 import { useTool } from "../store/Tool";
 import { useRouter } from "vue-router";
 import { useUser } from "../store/User";
+import {ElMessageBox,ElMessage } from "element-plus";
 // Tool Store
 const Tool = useTool();
 const UserStore = useUser();
 const { volumes } = storeToRefs(Tool);
 const { isAuth } = storeToRefs(UserStore);
-const { handleLogOut } = UserStore;
 // Router
 const router = useRouter();
+function logout(){
+  ElMessageBox.confirm("是否登出？","Warning",{
+    confirmButtonText:"确定",
+    cancelButtonText:"取消",
+    type: "warning"
+  }).then(() => {
+    ElMessage.success("成功退出");
+    isAuth.value = false;
+    router.push("/")
+  }).catch(() => {
+    ElMessage.info("取消");
+  });
+  
+}
 </script>
 
 <style lang="less" scoped>
@@ -60,7 +74,7 @@ const router = useRouter();
 }
 .el-menu-vertical-demo,
 .el-menu--collapse {
-  max-width: 3.4vw;
+  width: 4vw;
   min-height: 100vh;
 }
 .el-menu {

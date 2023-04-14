@@ -2,26 +2,27 @@ import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
 import { Niivue } from "@niivue/niivue";
 import { ElMessage } from "element-plus";
-
 export const useTool = defineStore("tool", () => {
   // 初始化渲染器
-  var Views = ref(null);
+  var View = reactive({});
   function CanvasInit() {
-    Views = new Niivue({
+    View = new Niivue({
       logging: "true",
       dragAndDropEnabled: false,
       backColor: [0, 0, 0, 1],
       onLocationChange: handleIntensityChange,
     });
-    Views.opts.multiplanarForceRender = true;
-    Views.setRadiologicalConvention(false);
-    Views.drawOpacity = 0.4;
-    Views.setSliceMM(true);
-
-    return Views;
+    View.opts.multiplanarForceRender = true;
+    View.setRadiologicalConvention(false);
+    View.drawOpacity = 0.4;
+    View.setSliceMM(true);
+    return View;
   }
 
   // 相关配置
+  var imgName = ref("");
+  var baseUrl = ref("");
+  var imgId = ref("");
   var lastPos = reactive({ vox: "", str: "" });
   function handleIntensityChange(data) {
     lastPos.vox = data.vox[0] + " , " + data.vox[1] + " , " + data.vox[2];
@@ -53,19 +54,19 @@ export const useTool = defineStore("tool", () => {
   function handleMouse(id) {
     switch (id) {
       case "none":
-        Views.opts.dragMode = Views.dragModes.none;
+        View.opts.dragMode = View.dragModes.none;
         break;
       case "contrast":
-        Views.opts.dragMode = Views.dragModes.contrast;
+        View.opts.dragMode = View.dragModes.contrast;
         break;
       case "measurement":
-        Views.opts.dragMode = Views.dragModes.measurement;
+        View.opts.dragMode = View.dragModes.measurement;
         break;
       case "pan":
-        Views.opts.dragMode = Views.dragModes.pan;
+        View.opts.dragMode = View.dragModes.pan;
         break;
       case "slicer":
-        Views.opts.dragMode = Views.dragModes.slicer3D;
+        View.opts.dragMode = View.dragModes.slicer3D;
         break;
     }
   }
@@ -74,24 +75,24 @@ export const useTool = defineStore("tool", () => {
   function handleScreen(id) {
     switch (id) {
       case "Axial":
-        Views.setSliceType(Views.sliceTypeAxial);
+        View.setSliceType(View.sliceTypeAxial);
         break;
       case "Sagittal":
-        Views.setSliceType(Views.sliceTypeSagittal);
+        View.setSliceType(View.sliceTypeSagittal);
         break;
       case "Coronal":
-        Views.setSliceType(Views.sliceTypeCoronal);
+        View.setSliceType(View.sliceTypeCoronal);
         break;
       case "Render":
-        Views.setSliceType(Views.sliceTypeRender);
+        View.setSliceType(View.sliceTypeRender);
         break;
       case "ACS":
-        Views.opts.multiplanarForceRender = false;
-        Views.setSliceType(Views.sliceTypeMultiplanar);
+        View.opts.multiplanarForceRender = false;
+        View.setSliceType(View.sliceTypeMultiplanar);
         break;
       case "ACSR":
-        Views.opts.multiplanarForceRender = true;
-        Views.setSliceType(Views.sliceTypeMultiplanar);
+        View.opts.multiplanarForceRender = true;
+        View.setSliceType(View.sliceTypeMultiplanar);
         break;
     }
   }
@@ -99,51 +100,49 @@ export const useTool = defineStore("tool", () => {
   // 画笔颜色工具
   var choose = ref("Red");
   function handleColor() {
-    Views.setDrawingEnabled(pen.value);
+    View.setDrawingEnabled(pen.value);
     switch (choose.value) {
       case "Red":
-        Views.setPenValue(1, fill.value);
+        View.setPenValue(1, fill.value);
         break;
       case "Green":
-        Views.setPenValue(2, fill.value);
+        View.setPenValue(2, fill.value);
         break;
       case "Blue":
-        Views.setPenValue(3, fill).value;
+        View.setPenValue(3, fill).value;
         break;
       case "Yellow":
-        Views.setPenValue(4, fill.value);
+        View.setPenValue(4, fill.value);
         break;
       case "Cyan":
-        Views.setPenValue(5, fill);
+        View.setPenValue(5, fill);
         break;
       case "Purple":
-        Views.setPenValue(6, fill);
+        View.setPenValue(6, fill);
         break;
       case "Erase":
-        Views.setPenValue(0, fill);
+        View.setPenValue(0, fill);
         break;
     }
   }
 
   // 保存相关工具
-  async function handleSave(id) {
+  function handleSave(id) {
     switch (id) {
       case "Image":
-        await Views.saveImage("test.nii", true);
+        View.saveImage("draw.nii", true);
         return;
       case "Bitmap":
-        await Views.saveScene("ScreenShot.png");
+        View.saveScene("ScreenShot.png");
         return;
     }
   }
-
   // 更改材质
   function handleMaterial(index, id) {
-    Views.volumes[index].colorMap = id;
-    Views.updateGLVolume();
+    View.volumes[index].colorMap = id;
+    View.updateGLVolume();
     return;
   }
-
   // 添加文件时的相关操作
   var volumes = ref([]);
   function AddVolumesFile(file) {
@@ -163,12 +162,9 @@ export const useTool = defineStore("tool", () => {
     volumes.value.pop();
   }
   function getVolumesFile() {
-    return volumes;
+    return volumes.value;
   }
-  // 拿到渲染器
-  function getViews() {
-    return Views;
-  }
+
   // 生成报告
   const dialogVisible = ref(false);
   return {
@@ -181,12 +177,15 @@ export const useTool = defineStore("tool", () => {
     handleSave,
     handleMaterial,
     getVolumesFile,
-    getViews,
     AddVolumesFile,
     RemoveVolumesFile,
     toolSwitch,
     lastPos,
     volumes,
+    View,
     dialogVisible,
+    imgName,
+    baseUrl,
+    imgId,
   };
 });
