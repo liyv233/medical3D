@@ -98,7 +98,7 @@
                   </el-button>
                   <el-button
                     type="primary"
-                    @click="countNum"
+                    @click="handleCountNum"
                     v-show="isInference"
                   >
                     器官计数
@@ -301,7 +301,7 @@
 
 <script setup>
 import { useTool } from "../store/Tool.js";
-import { ref, reactive, getCurrentInstance } from "vue";
+import { ref, reactive, getCurrentInstance, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useUser } from "../store/user";
 import { ElMessage } from "element-plus";
@@ -314,17 +314,36 @@ const request = getCurrentInstance().proxy.$request;
 const loading = ref(false);
 const userStore = useUser();
 const Tool = useTool();
-const { isInference } = storeToRefs(userStore);
-const { handleSave, handleScreen, handleMouse, handleTool, handleMaterial } =
-  Tool;
-const { dialogVisible, volumes, imgName, lastPos } = storeToRefs(Tool);
+const { isInference, basicInfo, isAuth, isCount } = storeToRefs(userStore);
+const {
+  handleSave,
+  handleScreen,
+  handleMouse,
+  handleTool,
+  handleMaterial,
+  countNum,
+} = Tool;
+const {
+  dialogVisible,
+  volumes,
+  lastPos,
+  imgId,
+  description,
+  imgName,
+  baseUrl,
+} = storeToRefs(Tool);
+// disabled
+const disabled = computed(() => {
+  if (isAuth.value == true && isInference.value == true) return false;
+  else return true;
+});
 // some define about tool
 const mouses = reactive([
   { id: "none", label: "无" },
-  { id: "slicer", label: "切片" },
-  { id: "pan", label: "平移缩放" },
+  { id: "slicer", label: "放缩" },
+  { id: "pan", label: "平移" },
   { id: "measurement", label: "测量" },
-  { id: "contrast", label: "色彩对比" },
+  { id: "contrast", label: "对比度" },
 ]);
 const screens = reactive([
   { id: "Axial", label: "横断面" },
@@ -362,37 +381,65 @@ var isFill = ref(false);
 const activeNames = ref(["1", "2", "3", "4", "5", "0"]);
 
 // 文件打印
-function handleMakePDF() {
+async function handleMakePDF() {
+  loading.value = true;
+  const res = await request.get(`/patients/${basicInfo.value.patientId}`);
+  console.log(res);
+  if (res.data._Result__code == 200) {
+    basicInfo.value.name = res.data._Result__data.patient_name;
+    basicInfo.value.sex = res.data._Result__data.sex;
+  } else {
+    ElMessage.error("患者ID错误");
+  }
+  loading.value = false;
+  console.log(basicInfo.value);
   const flag = Bus.emit("makepdf");
   if (flag) dialogVisible.value = false;
 }
+// 器官计数
+async function handleCountNum() {
+  loading.value = true;
+  const res = await countNum();
+  const data = await res.json();
+  if (data._Result__code == 200) {
+    isCount.value = true;
+    const { _Result__data } = data;
+    description.value = _Result__data.description;
+    ElNotification({
+      title: "器官个数",
+      type: "Success",
+      position: "top-left",
+      message: description.value,
+    });
+  } else {
+    ElMessage.error("发生错误");
+  }
+  loading.value = false;
+}
 // 推理
-var base_url = "";
-var img_name = "";
 async function Reasoning() {
   loading.value = true;
-  var data = new FormData();
+  var formData = new FormData();
   var currentFile = volumes.value[0].raw;
-  data.append("file", currentFile);
+  formData.append("file", currentFile);
   const res = await fetch("http://10.33.116.50:5000/imgs", {
     method: "POST",
-    body: data,
+    body: formData,
   });
-  res.json().then((data) => {
-    if (data._Result__code == 200) {
-      base_url = data._Result__data.base_url;
-      img_name = data._Result__data.img_name;
-      ElMessage.success("上传成功,请稍等...");
-      isInference.value = true;
-      let ii = "" + data._Result__data.img_id;
-      let filePath = "http://10.33.116.50:5000" + base_url + img_name;
-      Bus.emit("selectView", filePath, ii);
-      loading.value = false;
-    } else {
-      loading.value = false;
-      ElMessage.error("上传失败了");
-    }
-  });
+  const data = await res.json();
+  console.log(data);
+  if (data._Result__code == 200) {
+    baseUrl.value = data._Result__data.base_url;
+    imgName.value = data._Result__data.img_name;
+    imgId.value = data._Result__data.imgId;
+    ElMessage.success("上传成功,请稍等...");
+    isInference.value = true;
+    let filePath = "http://10.33.116.50:5000" + baseUrl.value + imgName.value;
+    Bus.emit("selectView", filePath);
+  } else {
+    ElMessage.error("上传失败了");
+  }
+  loading.value = false;
 }
 // 合并标注
 var uploadDialog = ref(false);
@@ -404,58 +451,53 @@ async function makeAll() {
   loading.value = true;
   var formData = new FormData();
   formData.append("file", newFile.raw);
-  formData.append("img_name", img_name);
+  formData.append("img_name", imgName.value);
   const res = await fetch("http://10.33.116.50:5000/imgs/graphs", {
     method: "POST",
     body: formData,
   });
-  res.json().then((data) => {
-    console.log(data);
-    if (data._Result__code == 200) {
-      base_url = data._Result__data.base_url;
-      img_name = data._Result__data.img_name;
-      ElMessage.success("上传成功,请稍等...");
-      isInference.value = true;
-      let filePath = "http://10.33.116.50:5000" + base_url + img_name;
-      Bus.emit("selectView", filePath, "");
-      loading.value = false;
-      uploadDialog.value = false;
-    } else {
-      ElMessage.error("上传失败了");
-      loading.value = false;
-      uploadDialog.value = false;
-    }
-  });
+  const data = await res.json();
+  if (data._Result__code == 200) {
+    baseUrl.value = data._Result__data.base_url;
+    imgName.value = data._Result__data.img_name;
+    imgId.value = data._Result__data.imgId;
+    ElMessage.success("上传成功,请稍等...");
+    isInference.value = true;
+    let filePath = "http://10.33.116.50:5000" + baseUrl.value + imgName.value;
+    Bus.emit("selectView", filePath);
+  } else {
+    ElMessage.error("上传失败了");
+  }
+  loading.value = false;
+  uploadDialog.value = false;
 }
 // 保留最大连通域
 async function keepMaxArea() {
+  loading.value = true;
   var formData = new FormData();
-  formData.append("img_name", imgName);
-  formData.append("x", lastPos.value.vox[0]);
-  formData.append("y", lastPos.value.vox[1]);
-  formData.append("z", lastPos.value.vox[2]);
+  formData.append("img_name", imgName.value);
+  let str = lastPos.value.vox.split(",");
+  formData.append("x", str[0]);
+  formData.append("y", str[1]);
+  formData.append("z", str[2]);
   const res = await fetch("http://10.33.116.50:5000/imgs/domains", {
     method: "POST",
     body: formData,
   });
-  res.json().then((data) => {
-    console.log(data);
-    if (data._Result__code == 200) {
-      base_url = data._Result__data.base_url;
-      img_name = data._Result__data.img_name;
-      ElMessage.success("上传成功,请稍等...");
-      isInference.value = true;
-      let ii = "" + data._Result__data.img_id;
-      let filePath = "http://10.33.116.50:5000" + base_url + img_name;
-      Bus.emit("selectView", filePath, ii);
-      loading.value = false;
-    } else {
-      ElMessage.error("上传失败了");
-      loading.value = false;
-    }
-  });
+  const data = await res.json();
+  if (data._Result__code == 200) {
+    baseUrl.value = data._Result__data.base_url;
+    imgName.value = data._Result__data.img_name;
+    ElMessage.success("请稍等...");
+    isInference.value = true;
+    let filePath = "http://10.33.116.50:5000" + baseUrl.value + imgName.value;
+    Bus.emit("selectView", filePath);
+  } else {
+    ElMessage.error("上传失败了");
+  }
+  loading.value = false;
 }
-// 预处理上传
+// 后处理上传
 var pyFile;
 var pyVisable = ref(false);
 function changePyFile(file) {
@@ -465,139 +507,105 @@ async function uploadAfterFile() {
   loading.value = true;
   var formData = new FormData();
   formData.append("file", pyFile.raw);
-  formData.append("img_name", img_name);
+  formData.append("img_name", imgName.value);
   const res = await fetch("http://10.33.116.50:5000/imgs/option", {
     method: "POST",
     body: formData,
   });
-  res.json().then((data) => {
-    if (data._Result__code == 200) {
-      base_url = data._Result__data.base_url;
-      img_name = data._Result__data.img_name;
-      ElMessage.success("上传成功,请稍等...");
-      let filePath = "http://10.33.116.50:5000" + base_url + img_name;
-      Bus.emit("selectView", filePath);
-      isInference.value = true;
-      loading.value = false;
-      pyVisable.value = false;
-    } else {
-      ElMessage.error("上传失败了");
-      loading.value = false;
-      pyVisable.value = false;
-    }
-  });
-}
-// 器官计算
-var numStr = "";
-async function countNum() {
-  loading.value = true;
-  var data = new FormData();
-  data.append("img_name", imgName.value);
-  const res = await fetch("http://10.33.116.50:5000/imgs/nums", {
-    method: "POST",
-    body: data,
-  });
-  res.json().then((data) => {
-    console.log(data);
-    if (data._Result__code == 200) {
-      const { _Result__data } = data;
-      numStr = _Result__data.description;
-      loading.value = false;
-      ElNotification({
-        title: "器官个数",
-        type: "Success",
-        position: "top-left",
-        message: numStr,
-      });
-    } else {
-      ElMessage.error("发生错误");
-      loading.value = false;
-    }
-  });
+  console.log(formData);
+  const data = await res.json();
+  console.log(data);
+  if (data._Result__code == 200) {
+    baseUrl.value = data._Result__data.base_url;
+    imgName.value = data._Result__data.img_name;
+    ElMessage.success("上传成功,请稍等...");
+    let filePath = "http://10.33.116.50:5000" + baseUrl.value + imgName.value;
+    Bus.emit("selectView", filePath);
+  } else {
+    ElMessage.error("上传失败了");
+  }
+  loading.value = false;
+  pyVisable.value = false;
 }
 // 面积
 async function getArea() {
   loading.value = true;
-  let data = new FormData();
-  data.append("img_name", imgName.value);
-  data.append("x", lastPos.value.vox[0]);
-  data.append("y", lastPos.value.vox[1]);
-  data.append("z", lastPos.value.vox[2]);
+  let formData = new FormData();
+  let string = lastPos.value.vox.split(",");
+  formData.append("img_name", imgName.value);
+  formData.append("x", string[0]);
+  formData.append("y", string[1]);
+  formData.append("z", string[2]);
   const res = await fetch("http://10.33.116.50:5000/imgs/area", {
     method: "POST",
-    body: data,
+    body: formData,
   });
-  res.json().then((data) => {
-    console.log(data);
-    if (data._Result__code == 200) {
-      var str = data._Result__data.area;
-      loading.value = false;
-      ElNotification({
-        title: "面积",
-        type: "Success",
-        position: "top-left",
-        message: str,
-      });
-    } else {
-      ElMessage.error("发生错误");
-      loading.value = false;
-    }
-  });
+  const data = await res.json();
+  console.log(data);
+  if (data._Result__code == 200) {
+    var str = data._Result__data.area;
+    loading.value = false;
+    ElNotification({
+      title: "面积",
+      type: "Success",
+      position: "top-left",
+      message: str,
+    });
+  } else {
+    ElMessage.error("发生错误");
+    loading.value = false;
+  }
 }
 // 体积
 async function getVolume() {
   loading.value = true;
-  let data = new FormData();
-  data.append("img_name", imgName.value);
+  let formData = new FormData();
+  formData.append("img_name", imgName.value);
   const res = await fetch("http://10.33.116.50:5000/imgs/volume", {
     method: "POST",
-    body: data,
+    body: formData,
   });
-  res.json().then((data) => {
-    console.log(data);
-
-    if (data._Result__code == 200) {
-      var str = data._Result__data.volumes;
-      // str = str.replace(" ", "\n");
-      loading.value = false;
-      ElNotification({
-        title: "体积",
-        type: "Success",
-        position: "top-left",
-        message: str,
-      });
-    } else {
-      ElMessage.error("发生错误");
-      loading.value = false;
-    }
-  });
+  const data = await res.json();
+  if (data._Result__code == 200) {
+    var str = data._Result__data.volumes;
+    ElNotification({
+      title: "体积",
+      type: "Success",
+      position: "top-left",
+      message: str,
+    });
+  } else {
+    ElMessage.error("发生错误");
+  }
+  loading.value = false;
 }
 // 直径
 async function getDia() {
   loading.value = true;
-  let data = new FormData();
-  data.append("img_name", imgName.value);
-  const res = await fetch("http://10.33.116.50:5000/imgs/?", {
+  let formData = new FormData();
+  let string = lastPos.value.vox.split(",");
+  formData.append("img_name", imgName.value);
+  formData.append("x", string[0]);
+  formData.append("y", string[1]);
+  formData.append("z", string[2]);
+  const res = await fetch("http://10.33.116.50:5000/imgs/long", {
     method: "POST",
-    body: data,
+    body: formData,
   });
-  res.json().then((data) => {
-    console.log(data);
-
-    if (data._Result__code == 200) {
-      // var str = data._Result__data.volumes;
-      loading.value = false;
-      ElNotification({
-        title: "体积",
-        type: "Success",
-        position: "top-left",
-        message: str,
-      });
-    } else {
-      ElMessage.error("发生错误");
-      loading.value = false;
-    }
-  });
+  const data = await res.json();
+  console.log(data);
+  if (data._Result__code == 200) {
+    let str = data._Result__data.long;
+    ElNotification({
+      title: "直径",
+      type: "Success",
+      position: "top-left",
+      message: str,
+    });
+  } else {
+    ElMessage.error("发生错误");
+  }
+  loading.value = false;
 }
 </script>
 
@@ -643,9 +651,11 @@ async function getDia() {
             font-weight: 700;
           }
           .el-radio-group {
-            display: block;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
             .el-radio {
-              padding-left: 2vw;
+              width: 28%;
             }
           }
           .el-checkbox {

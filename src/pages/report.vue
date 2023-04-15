@@ -11,13 +11,18 @@
           label-position="right"
         >
           <el-col>
-            <el-form-item label="医 生 ID：">
-              <span>{{ patient.work_no }}</span>
+            <el-form-item label="医生工号：">
+              <span>{{
+                isInference == true && isAuth == true
+                  ? UserInfo.work_no
+                  : "请先登陆并且完成推理"
+              }}</span>
             </el-form-item>
-            <el-form-item label="病 人 ID：">
+            <el-form-item label="病人ID：">
               <el-input
-                v-model="patient.patientId"
-                placeholder="请输入患者的id"
+                :disabled="disabled"
+                v-model="basicInfo.patientId"
+                :placeholder="holder1"
               />
             </el-form-item>
           </el-col>
@@ -25,14 +30,15 @@
       </div>
       <div class="notes">
         <article>医学影像所见：</article>
-        <span>{{ patient.description }}</span>
+        <span>{{ handleCount }}</span>
       </div>
       <div class="suggestion">
         <article>医生诊断及建议：</article>
         <el-input
           type="textarea"
-          v-model="patient.suggestion"
-          :disabled="!isAuth"
+          v-model="basicInfo.suggestion"
+          :disabled="disabled"
+          :placeholder="holder"
         ></el-input>
       </div>
     </div>
@@ -51,23 +57,23 @@
         >
           <el-col>
             <el-form-item label="姓 名：">
-              <span>{{ patient.name }}</span>
+              <span>{{ basicInfo.name }}</span>
             </el-form-item>
             <el-form-item label="性 别：">
-              <span> {{ patient.sex }}</span>
+              <span> {{ basicInfo.sex }}</span>
             </el-form-item>
             <el-form-item label="病人ID：">
-              <span>{{ patient.patientId }}</span>
+              <span>{{ basicInfo.patientId }}</span>
             </el-form-item>
-            <el-form-item label="医生：">
-              <span>{{ UserInfo.d_name }}</span>
+            <el-form-item label="医生工号：">
+              <span>{{ UserInfo.work_no }}</span>
             </el-form-item>
           </el-col>
         </el-form>
       </div>
       <div class="notes">
         <article>医学影像所见：</article>
-        <span>{{ inferenceResult.description }}</span>
+        <span>{{ description }}</span>
       </div>
       <div class="suggestion">
         <article>医生诊断及建议：</article>
@@ -80,49 +86,61 @@
 <script setup>
 import { ElMessage } from "element-plus";
 import { storeToRefs } from "pinia";
-import { reactive, ref, getCurrentInstance } from "vue";
+import { reactive, ref, computed, getCurrentInstance, onMounted } from "vue";
 import { useUser } from "../store/User";
 import { useTool } from "../store/Tool.js";
 import Bus from "../utils/eventbus";
 import htmlToPdf from "../utils/htmlToPdf";
 const User = useUser();
 const Tool = useTool();
-const { dialogVisible, imgId } = storeToRefs(Tool);
-const { UserInfo, inferenceResult, isAuth, isInference, basicInfo } =
-  storeToRefs(User);
+const { dialogVisible, imgId, description } = storeToRefs(Tool);
+const { UserInfo, isAuth, isInference, basicInfo, isCount } = storeToRefs(User);
 var patient = reactive({
-  work_no: isAuth.value == true ? UserInfo.value.d_name : "请先登陆",
   patientId: basicInfo.value.patientId,
-  checkId: handleInference("checkId"),
-  checkPart: handleInference("checkPart"),
-  judgment: handleInference("judgment"),
   suggestion: isAuth.value == true ? basicInfo.value.suggestion : "请先登陆",
 });
-// 处理推理得出信息
-function handleInference(msg) {
-  if (isInference.value == true) {
-    return inferenceResult[msg];
-  } else {
-    return "请先进行推理";
-  }
-}
+// count
+const handleCount = computed(() => {
+  if (isCount.value == true) return description.value;
+  else return "请先进行器官计数";
+});
 // 是否展示打印时用的面版
 const request = getCurrentInstance().proxy.$request;
 Bus.on("makepdf", async () => {
-  if (isInference.value == true && isAuth.value == true) {
-    await htmlToPdf.getPdf(basicInfo.value.patientId + "报告单");
+  var formData = new FormData();
+  formData.append("opinion", basicInfo.value.suggestion);
+  formData.append("description", description.value);
+  formData.append("patient_id", basicInfo.value.patientId);
+  formData.append("img_id", imgId.value);
+  formData.append("doctor_id", UserInfo.value.doctor_id);
+  const res = await fetch("http://10.33.116.50:5000/records", {
+    method: "POST",
+    body: formData,
+  });
+  const data = await res.json();
+  console.log(data);
+  if (data._Result__code == 200) {
+    htmlToPdf.getPdf(basicInfo.value.patientId + "报告单");
     dialogVisible.value = false;
-    ElMessage.success("请稍等.....");
-    var data = new FormData();
-    data.append("opinion", basicInfo.suggestion);
-    data.append("description", inferenceResult.description);
-    data.append("patient_id", basicInfo.patientId);
-    data.append("img_id", imgId.value);
-    request.post("/records");
+    ElMessage.success("正在保存云端成功.....");
   } else {
-    ElMessage.error("请先登陆并推理完成");
+    ElMessage.error("保存云端记录失败.....");
   }
 });
+const holder = computed(() => {
+  if (isAuth.value == true && isInference.value == true)
+    return "请输入诊断结果";
+  else return "请先登陆并推理";
+});
+const holder1 = computed(() => {
+  if (isAuth.value == true && isInference.value == true) return "请输入患者id";
+  else return "请先登陆并推理";
+});
+const disabled = computed(() => {
+  if (isAuth.value == true && isInference.value == true) return false;
+  else return true;
+});
+onMounted(() => {});
 </script>
 
 <style lang="less" scoped>
@@ -188,7 +206,7 @@ Bus.on("makepdf", async () => {
   }
   .file {
     position: absolute;
-    left: -10001px;
+    left: -10000px;
     width: 65vw;
     background-color: rgb(255, 255, 255);
     .title {
@@ -205,6 +223,7 @@ Bus.on("makepdf", async () => {
     .infomation {
       margin-top: 1vh;
       margin-bottom: 2vh;
+      margin-left: 2vw;
       .el-col {
         display: flex;
         flex-direction: column;
@@ -215,6 +234,7 @@ Bus.on("makepdf", async () => {
           margin-top: 4vh;
           span {
             font-size: 16px;
+            margin-left: 2vw;
           }
           :deep(.el-form-item__label) {
             font-style: 16px;
@@ -230,6 +250,7 @@ Bus.on("makepdf", async () => {
       border-top: 1px solid #000;
       padding-top: 2vh;
       article {
+        margin-left: 2vw;
         margin-bottom: 4vh;
         font-size: 20px;
         font-weight: 700;
@@ -246,6 +267,7 @@ Bus.on("makepdf", async () => {
       border-top: 1px solid #000;
       padding-top: 2vh;
       article {
+        margin-left: 2vw;
         margin-bottom: 2vh;
         font-size: 20px;
         font-weight: 700;
