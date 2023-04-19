@@ -116,6 +116,10 @@ Bus.on("makepdf", async () => {
   const res = await fetch("http://10.33.116.50:5000/records", {
     method: "POST",
     body: formData,
+    headers: {
+    'Authorization': localStorage.getItem("Authorization")
+
+  },
   });
   const data = await res.json();
   console.log(data);
@@ -147,7 +151,7 @@ onMounted(() => {});
 .content {
   position: relative;
   display: flex;
-  max-height: 50vh;
+  max-height: 60vh;
   .form {
     justify-content: center;
     align-items: center;
@@ -191,6 +195,7 @@ onMounted(() => {});
       margin-top: 4vh;
       border-top: 1px solid #000;
       padding-top: 2vh;
+      margin-bottom: 2vh;
       article {
         margin-bottom: 2vh;
         font-size: 20px;

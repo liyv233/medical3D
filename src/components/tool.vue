@@ -1,9 +1,6 @@
 <template>
   <Transition>
-    <div
-      class="mask"
-      v-loading="loading"
-    >
+    <div class="mask" v-loading="loading">
       <div class="tool">
         <div class="toolTop">
           <el-icon
@@ -17,22 +14,13 @@
         <div class="toolContent">
           <el-collapse v-model="activeNames">
             <!-- material -->
-            <el-collapse-item
-              title="模型"
-              name="0"
-            >
+            <el-collapse-item title="模型" name="0">
               <div class="mode">
                 <!-- 推理前 -->
-                <div
-                  class="volumes"
-                  v-show="!isInference"
-                >
+                <div class="volumes" v-show="!isInference">
                   <article>推理前模型</article>
                   <span>
-                    <select
-                      v-model="Material"
-                      style="width: 5vw"
-                    >
+                    <select v-model="Material" style="width: 5vw">
                       <option
                         v-for="material in materials"
                         :value="material.id"
@@ -45,16 +33,10 @@
                   </span>
                 </div>
                 <!-- 推理后 -->
-                <div
-                  class="volumes"
-                  v-show="isInference"
-                >
+                <div class="volumes" v-show="isInference">
                   <article>推理完成模型</article>
                   <span>
-                    <select
-                      v-model="afterMaterial"
-                      style="width: 5vw"
-                    >
+                    <select v-model="afterMaterial" style="width: 5vw">
                       <option
                         v-for="material in materials"
                         :value="material.id"
@@ -128,10 +110,7 @@
               </div>
             </el-collapse-item>
             <!-- mouse -->
-            <el-collapse-item
-              title="右键功能"
-              name="1"
-            >
+            <el-collapse-item title="右键功能" name="1">
               <el-radio-group v-model="Mouse">
                 <el-radio
                   size="large"
@@ -143,10 +122,7 @@
               </el-radio-group>
             </el-collapse-item>
             <!-- screen -->
-            <el-collapse-item
-              title="视图"
-              name="2"
-            >
+            <el-collapse-item title="视图" name="2">
               <el-radio-group v-model="Screen">
                 <el-radio
                   size="large"
@@ -158,10 +134,7 @@
               </el-radio-group>
             </el-collapse-item>
             <!-- drawing -->
-            <el-collapse-item
-              title="标注"
-              name="3"
-            >
+            <el-collapse-item title="标注" name="3">
               <div>
                 <el-checkbox v-model="Pen">开启/关闭</el-checkbox>
                 <el-checkbox v-model="isFill">是否填充</el-checkbox>
@@ -179,10 +152,7 @@
               </div>
             </el-collapse-item>
             <!-- save -->
-            <el-collapse-item
-              title="保存"
-              name="4"
-            >
+            <el-collapse-item title="保存" name="4">
               <el-row class="mb-4">
                 <el-button
                   type="primary"
@@ -194,15 +164,9 @@
               </el-row>
             </el-collapse-item>
             <!-- 报告导出 -->
-            <el-collapse-item
-              title="导出报告"
-              name="5"
-            >
+            <el-collapse-item title="导出报告" name="5">
               <el-row class="mb-4">
-                <el-button
-                  type="primary"
-                  @click="dialogVisible = true"
-                >
+                <el-button type="primary" @click="dialogVisible = true">
                   生成报告
                 </el-button>
               </el-row>
@@ -210,10 +174,7 @@
           </el-collapse>
         </div>
       </div>
-      <div
-        class="other"
-        @click="handleTool(BeChooseColor, Pen, isFill)"
-      ></div>
+      <div class="other" @click="handleTool(BeChooseColor, Pen, isFill)"></div>
       <!-- 后处理 -->
       <el-dialog
         v-model="pyVisable"
@@ -284,14 +245,9 @@
       <el-dialog v-model="dialogVisible">
         <report></report>
         <template #footer>
-          <span class="dialog-footer">
+          <span class="dialog-footer" >
             <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button
-              type="primary"
-              @click="handleMakePDF"
-            >
-              确 定
-            </el-button>
+            <el-button type="primary" @click="handleMakePDF"> 确 定 </el-button>
           </span>
         </template>
       </el-dialog>
@@ -735,4 +691,5 @@ async function getDia() {
 :deep(.el-upload-list__item-info) {
   width: 5vw;
 }
+
 </style>
