@@ -77,7 +77,7 @@
       </div>
       <div class="suggestion">
         <article>医生诊断及建议：</article>
-        <span>{{ basicInfo.suggestion }}</span>
+        <span >{{ basicInfo.suggestion }}</span>
       </div>
     </div>
   </div>
@@ -134,11 +134,11 @@ Bus.on("makepdf", async () => {
 const holder = computed(() => {
   if (isAuth.value == true && isInference.value == true)
     return "请输入诊断结果";
-  else return "请先登陆并推理";
+  else return "请先登陆";
 });
 const holder1 = computed(() => {
   if (isAuth.value == true && isInference.value == true) return "请输入患者id";
-  else return "请先登陆并推理";
+  else return "请先登陆";
 });
 const disabled = computed(() => {
   if (isAuth.value == true && isInference.value == true) return false;
