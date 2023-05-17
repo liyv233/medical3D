@@ -378,7 +378,7 @@ async function Reasoning() {
   var formData = new FormData();
   var currentFile = volumes.value[0].raw;
   formData.append("file", currentFile);
-  const res = await fetch("http://10.33.116.50:5000/imgs", {
+  const res = await fetch("http://10.33.39.163:5000/imgs", {
     method: "POST",
     body: formData,
   });
@@ -390,7 +390,7 @@ async function Reasoning() {
     imgId.value = data._Result__data.imgId;
     ElMessage.success("上传成功,请稍等...");
     isInference.value = true;
-    let filePath = "http://10.33.116.50:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://10.33.39.163:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
   } else {
     ElMessage.error("上传失败了");
@@ -408,7 +408,7 @@ async function makeAll() {
   var formData = new FormData();
   formData.append("file", newFile.raw);
   formData.append("img_name", imgName.value);
-  const res = await fetch("http://10.33.116.50:5000/imgs/graphs", {
+  const res = await fetch("http://10.33.39.163:5000/imgs/graphs", {
     method: "POST",
     body: formData,
   });
@@ -419,7 +419,7 @@ async function makeAll() {
     imgId.value = data._Result__data.imgId;
     ElMessage.success("上传成功,请稍等...");
     isInference.value = true;
-    let filePath = "http://10.33.116.50:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://10.33.39.163:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
   } else {
     ElMessage.error("上传失败了");
@@ -436,7 +436,7 @@ async function keepMaxArea() {
   formData.append("x", str[0]);
   formData.append("y", str[1]);
   formData.append("z", str[2]);
-  const res = await fetch("http://10.33.116.50:5000/imgs/domains", {
+  const res = await fetch("http://10.33.39.163:5000/imgs/domains", {
     method: "POST",
     body: formData,
   });
@@ -446,7 +446,7 @@ async function keepMaxArea() {
     imgName.value = data._Result__data.img_name;
     ElMessage.success("请稍等...");
     isInference.value = true;
-    let filePath = "http://10.33.116.50:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://10.33.39.163:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
   } else {
     ElMessage.error("上传失败了");
@@ -464,7 +464,7 @@ async function uploadAfterFile() {
   var formData = new FormData();
   formData.append("file", pyFile.raw);
   formData.append("img_name", imgName.value);
-  const res = await fetch("http://10.33.116.50:5000/imgs/option", {
+  const res = await fetch("http://10.33.39.163:5000/imgs/option", {
     method: "POST",
     body: formData,
   });
@@ -475,7 +475,7 @@ async function uploadAfterFile() {
     baseUrl.value = data._Result__data.base_url;
     imgName.value = data._Result__data.img_name;
     ElMessage.success("上传成功,请稍等...");
-    let filePath = "http://10.33.116.50:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://10.33.39.163:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
   } else {
     ElMessage.error("上传失败了");
@@ -492,7 +492,7 @@ async function getArea() {
   formData.append("x", string[0]);
   formData.append("y", string[1]);
   formData.append("z", string[2]);
-  const res = await fetch("http://10.33.116.50:5000/imgs/area", {
+  const res = await fetch("http://10.33.39.163:5000/imgs/area", {
     method: "POST",
     body: formData,
   });
@@ -517,7 +517,7 @@ async function getVolume() {
   loading.value = true;
   let formData = new FormData();
   formData.append("img_name", imgName.value);
-  const res = await fetch("http://10.33.116.50:5000/imgs/volume", {
+  const res = await fetch("http://10.33.39.163:5000/imgs/volume", {
     method: "POST",
     body: formData,
   });
@@ -544,7 +544,7 @@ async function getDia() {
   formData.append("x", string[0]);
   formData.append("y", string[1]);
   formData.append("z", string[2]);
-  const res = await fetch("http://10.33.116.50:5000/imgs/long", {
+  const res = await fetch("http://10.33.39.163:5000/imgs/long", {
     method: "POST",
     body: formData,
   });

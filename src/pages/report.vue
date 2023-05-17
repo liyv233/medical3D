@@ -77,7 +77,7 @@
       </div>
       <div class="suggestion">
         <article>医生诊断及建议：</article>
-        <span>{{ basicInfo.suggestion }}</span>
+        <span >{{ basicInfo.suggestion }}</span>
       </div>
     </div>
   </div>
@@ -113,7 +113,7 @@ Bus.on("makepdf", async () => {
   formData.append("patient_id", basicInfo.value.patientId);
   formData.append("img_id", imgId.value);
   formData.append("doctor_id", UserInfo.value.doctor_id);
-  const res = await fetch("http://10.33.116.50:5000/records", {
+  const res = await fetch("http://10.33.39.163:5000/records", {
     method: "POST",
     body: formData,
     headers: {
@@ -134,11 +134,11 @@ Bus.on("makepdf", async () => {
 const holder = computed(() => {
   if (isAuth.value == true && isInference.value == true)
     return "请输入诊断结果";
-  else return "请先登陆并推理";
+  else return "请先登陆";
 });
 const holder1 = computed(() => {
   if (isAuth.value == true && isInference.value == true) return "请输入患者id";
-  else return "请先登陆并推理";
+  else return "请先登陆";
 });
 const disabled = computed(() => {
   if (isAuth.value == true && isInference.value == true) return false;

@@ -170,7 +170,7 @@ export const useTool = defineStore("tool", () => {
   async function countNum() {
     var data = new FormData();
     data.append("img_name", imgName.value);
-    const res = await fetch("http://10.33.116.50:5000/imgs/nums", {
+    const res = await fetch("http://10.33.39.163:5000/imgs/nums", {
       method: "POST",
       body: data,
     });
