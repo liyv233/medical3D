@@ -92,7 +92,7 @@
           layout="prev, pager, next"
           :current-page="CurrentPage"
           @current-change="handlehCurrentChange"
-          :total="10"
+          :total="100"
         >
         </el-pagination>
       </el-card>
@@ -141,7 +141,6 @@ async function startSearch() {
     params.p_no = key[1];
   }
   const res = await request.get(urls[select.value], { params });
-  console.log(res);
   var { _Result__data } = res.data;
   if (_Result__data.length == 0) {
     ElMessage.error("没有查到相关记录");

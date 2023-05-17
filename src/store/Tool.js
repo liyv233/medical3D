@@ -22,7 +22,7 @@ export const useTool = defineStore("tool", () => {
   // 相关配置
   var imgName = ref("");
   var baseUrl = ref("");
-  var imgId = ref("");
+  var imgId = ref(0);
   var lastPos = reactive({ vox: "", str: "" });
   function handleIntensityChange(data) {
     lastPos.vox = data.vox[0] + " , " + data.vox[1] + " , " + data.vox[2];
@@ -165,8 +165,21 @@ export const useTool = defineStore("tool", () => {
     return volumes.value;
   }
 
+  // 器官计数
+  var description = ref("");
+  async function countNum() {
+    var data = new FormData();
+    data.append("img_name", imgName.value);
+    const res = await fetch("http://10.33.39.163:5000/imgs/nums", {
+      method: "POST",
+      body: data,
+    });
+    return res;
+  }
   // 生成报告
   const dialogVisible = ref(false);
+  // url
+  const url = ref("");
   return {
     CanvasInit,
     handleIntensityChange,
@@ -179,6 +192,7 @@ export const useTool = defineStore("tool", () => {
     getVolumesFile,
     AddVolumesFile,
     RemoveVolumesFile,
+    countNum,
     toolSwitch,
     lastPos,
     volumes,
@@ -187,5 +201,7 @@ export const useTool = defineStore("tool", () => {
     imgName,
     baseUrl,
     imgId,
+    description,
+    url,
   };
 });

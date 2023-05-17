@@ -20,8 +20,8 @@
     </div>
     <div class="port">
       <div class="pos">
-        <article>坐标：[{{ lastPos.vox || "x ,y ,z" }}]</article>
-        <article>器官id：{{ lastPos.str || "x" }}</article>
+        <article>坐标：[{{ lastPos.vox || "0 ,0 ,0" }}]</article>
+        <article>器官id：{{ lastPos.str || "0" }}</article>
       </div>
     </div>
   </div>
@@ -45,23 +45,19 @@ const userStore = useUser();
 const { isInference } = storeToRefs(userStore);
 const Tool = useTool();
 const router = useRouter();
-var { toolSwitch, lastPos, volumes } = storeToRefs(Tool);
-const { handleTool, getVolumesFile, CanvasInit } = Tool;
+var { toolSwitch, lastPos, volumes, imgId } = storeToRefs(Tool);
+const { handleTool, getVolumesFile, CanvasInit, countNum } = Tool;
 // attach to canvas
 var View = CanvasInit();
 async function Attach() {
   const file = getVolumesFile();
-  // const View = CanvasInit();
   View.attachTo("nv1");
   const nvimage = await NVImage.loadFromFile({ file: file[0].raw });
   View.addVolume(nvimage);
 }
 // 组件通信
 
-Bus.on("selectView", async (url, param) => {
-  console.log(url);
-  console.log(param);
-
+Bus.on("selectView", async (url) => {
   View = CanvasInit();
   View.attachTo("nv2");
   const nvimage = await NVImage.loadFromUrl({ url });
@@ -76,7 +72,11 @@ onMounted(async () => {
     });
     router.push("/");
   } else {
-    Attach();
+    if (isInference.value == false) Attach();
+    else {
+      isInference.value = false;
+      Attach();
+    }
   }
 });
 </script>

@@ -118,13 +118,12 @@ async function SignIn(In) {
   for (let i in In) {
     data.append(i, In[i]);
   }
-  console.log(data);
   const response = await instance.proxy.$request.post("/login", data);
   const { _Result__data } = response.data;
   loading.value = false;
   // 用户数据
-  setUserInfo(_Result__data, response.data._Result__msg);
   if (response.data._Result__code == 200) {
+    setUserInfo(_Result__data, response.data._Result__msg);
     ElMessage.success("登陆成功，即将跳转");
     router.push("/user");
     isAuth.value = true;
