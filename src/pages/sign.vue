@@ -4,7 +4,12 @@
     v-loading="loading"
   >
     <div class="outer">
-      <el-icon @click="goBack"><ArrowLeft /></el-icon>
+      <el-icon
+        @click="goBack"
+        :size="20"
+      >
+        <ArrowLeft />
+      </el-icon>
     </div>
     <div
       class="container"

@@ -13,6 +13,12 @@
           >
             <Back />
           </el-icon>
+          <el-icon
+            :size="40"
+            @click="goHome"
+          >
+            <HomeFilled />
+          </el-icon>
         </div>
         <div class="toolContent">
           <el-collapse v-model="activeNames">
@@ -306,8 +312,9 @@ import { storeToRefs } from "pinia";
 import { useUser } from "../store/user";
 import { ElMessage } from "element-plus";
 import Bus from "../utils/eventbus";
-import { ElNotification } from "element-plus";
+import { ElNotification, ElMessageBox } from "element-plus";
 import report from "../pages/report.vue";
+import { useRouter } from "vue-router";
 // request
 const request = getCurrentInstance().proxy.$request;
 // pinia
@@ -610,6 +617,21 @@ async function getDia() {
   }
   loading.value = false;
 }
+// 返回
+const router = useRouter();
+const goHome = () => {
+  ElMessageBox.confirm("确定回到主界面？", "Warning", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      router.push("/");
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+};
 </script>
 
 <style lang="less" scoped>
@@ -632,6 +654,8 @@ async function getDia() {
     width: 18vw;
     height: 100vh;
     .toolTop {
+      display: flex;
+      justify-content: space-between;
       .el-icon {
         cursor: pointer;
         padding-left: 0.5vw;

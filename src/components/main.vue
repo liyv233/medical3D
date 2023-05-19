@@ -228,6 +228,7 @@ onMounted(async () => {
     width: 100vw;
     height: 90vh;
     .el-aside {
+      background-color: #fff;
       padding: 1%;
       article {
         height: 5vh;
@@ -258,9 +259,12 @@ onMounted(async () => {
     .el-main {
       padding: 0;
       display: flex;
+      background-color: #f6f8fa;
       .left-container {
         width: 70vw;
         height: 90vh;
+        background-color: #f6f8fa;
+        margin-left: 2%;
         article {
           margin-top: 2%;
           margin-bottom: 2%;
@@ -274,7 +278,6 @@ onMounted(async () => {
           width: 100%;
           overflow-y: scroll;
           .el-table {
-            background-color: #ffffff;
             overflow-x: hidden;
             padding: 2% 2% 0 2%;
             height: 100%;
