@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
 export const useUser = defineStore("user", () => {
+  const reasionDialogVisible = ref(false);
+  const lungDialogVisible = ref(false);
   const isAuth = ref(false);
   const pageNum = ref(1);
   const UserInfo = reactive({
@@ -18,6 +20,7 @@ export const useUser = defineStore("user", () => {
   });
   const isCount = ref(false);
   const isInference = ref(false);
+  const fileType = ref(0);
   function setUserInfo(_Result__data, Authorization) {
     UserInfo.email = _Result__data.email;
     UserInfo.id = _Result__data.id;
@@ -30,6 +33,12 @@ export const useUser = defineStore("user", () => {
       localStorage.setItem("Authorization", Authorization);
     }
   }
+  function setReasionDialogVisible(value) {
+    reasionDialogVisible.value = value;
+  }
+  function setLungDialogVisible(value) {
+    lungDialogVisible.value = value;
+  }
   return {
     isAuth,
     isInference,
@@ -37,6 +46,11 @@ export const useUser = defineStore("user", () => {
     basicInfo,
     pageNum,
     isCount,
+    lungDialogVisible,
+    reasionDialogVisible,
+    fileType,
+    setReasionDialogVisible,
+    setLungDialogVisible,
     setUserInfo,
   };
 });

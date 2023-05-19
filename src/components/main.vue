@@ -10,7 +10,8 @@
             style="list-style: none"
           >
             <li class="active">推理任务列表</li>
-            <li>执行推理</li>
+            <li @click="setReasionDialogVisible(true)">执行推理</li>
+            <li @click="setLungDialogVisible(true)">肺结节</li>
           </ul>
         </el-aside>
         <el-main>
@@ -24,12 +25,14 @@
                     label="任务ID"
                     style="width: 10%"
                   />
-                  <el-table-column label="模型基本信息">
-                    <ul>
-                      <li>{{ img_url }}</li>
-                      <li>{{}}</li>
-                    </ul>
-                  </el-table-column>
+                  <el-table-column
+                    label="模型"
+                    prop="img_url"
+                  />
+                  <el-table-column
+                    label="类型"
+                    prop="modeType"
+                  />
                   <el-table-column
                     prop="patient_no"
                     label="患者编号"
@@ -55,7 +58,10 @@
             <div class="top">
               <div class="user">
                 <img src="vite.svg" />
-                <div class="userInfo">
+                <div
+                  class="userInfo"
+                  v-show="isAuth"
+                >
                   <span>
                     姓名：
                     <p>{{ UserInfo.work_no }}</p>
@@ -64,6 +70,25 @@
                     工号：
                     <p>{{ UserInfo.d_name }}</p>
                   </span>
+                </div>
+                <div
+                  class="userInfo"
+                  v-show="!isAuth"
+                  style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-direction: column;
+                  "
+                >
+                  <article style="font-size: 19px">您还没有登陆噢</article>
+                  <el-button
+                    type="primary"
+                    style="margin-top: 15%"
+                    @click="goToSign"
+                  >
+                    去登陆 / 注册<el-icon><ArrowRight /></el-icon>
+                  </el-button>
                 </div>
               </div>
             </div>
@@ -111,19 +136,24 @@
           </el-row>
         </el-main>
       </el-container>
+      <reasionUpload />
+      <lungUpload />
     </el-container>
   </div>
 </template>
 <!--  -->
 <script setup>
-//
-import { ref, reactive, onMounted, getCurrentInstance } from "vue";
+import { ref, onMounted, getCurrentInstance } from "vue";
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
-import { ElMessage } from "element-plus";
 import { useUser } from "../store/user";
-
+import { ElMessage } from "element-plus";
+import { ArrowRight } from "@element-plus/icons-vue";
+import reasionUpload from "./reasionUpload.vue";
+import lungUpload from "./lungUpload.vue";
 const User = useUser();
-const { UserInfo, pageNum } = storeToRefs(User);
+const { UserInfo, pageNum, isAuth } = storeToRefs(User);
+const { setLungDialogVisible, setReasionDialogVisible } = User;
 
 var request = getCurrentInstance().proxy.$request;
 const select = ref(0);
@@ -159,6 +189,11 @@ async function startSearch() {
   inputInfomation.value = "";
 }
 
+const router = useRouter();
+const goToSign = () => {
+  router.push("/sign");
+};
+
 onMounted(async () => {
   var res = await request.get("/records", {
     params: {
@@ -176,25 +211,23 @@ onMounted(async () => {
 
 <style lang="less" scoped>
 .outer-container {
-  color: #ffffff;
-  background-color: #121212;
+  background-color: aliceblue;
   width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center;
   .el-header {
-    background-color: #212121;
+    background-color: #90caf9;
     height: 10vh;
     font-size: 30px;
     font-weight: 800;
     line-height: 10vh;
-    color: #58ad5b;
+    color: #fff;
   }
   .inner-container {
     width: 100vw;
     height: 90vh;
     .el-aside {
-      color: #ffffff;
       padding: 1%;
       article {
         height: 5vh;
@@ -214,11 +247,11 @@ onMounted(async () => {
           width: 60%;
           font-size: 20px;
           border-radius: 15px;
-          transition: background-color 0.3s ease-in-out, border 0.3s ease-in-out;
+          transition: all 0.3s ease-in-out;
         }
         li:hover {
-          background-color: rgba(255, 255, 255, 0.205);
-          color: #58ad5b;
+          background-color: rgba(0, 0, 0, 0.205);
+          color: rgba(0, 0, 0, 0.507);
         }
       }
     }
@@ -241,14 +274,11 @@ onMounted(async () => {
           width: 100%;
           overflow-y: scroll;
           .el-table {
-            background-color: #1e1e1e;
+            background-color: #ffffff;
             overflow-x: hidden;
             padding: 2% 2% 0 2%;
             height: 100%;
             width: 100%;
-            ul {
-              padding-left: 1%;
-            }
             // 底部边框
             :deep(.el-table__inner-wrapper::before) {
               width: 100%;
@@ -258,26 +288,21 @@ onMounted(async () => {
             :deep(.el-table__header) {
               font-size: 21px;
               thead tr th {
-                background-color: #1e1e1e;
-                color: aliceblue;
+                color: #000;
                 border-bottom: #7e7e7e 1px solid;
               }
             }
             // 每行的下边框
             :deep(.el-table__row) {
               font-size: 18px;
-              background-color: #1e1e1e;
               color: aliceblue;
               td {
                 border-bottom: #7e7e7e 1px solid;
               }
-              &:hover {
-                background: #616161 !important;
-              }
             }
             // hover样式 和 上面那个里面的&:hover一起用
             :deep(.el-table__body tr:hover > td) {
-              background-color: rgba(0, 0, 0, 0) !important;
+              background-color: rgba(255, 255, 255, 0) !important;
             }
           }
         }
@@ -295,7 +320,6 @@ onMounted(async () => {
           height: 10vh;
           margin-top: 10vh;
           margin-bottom: 10vh;
-          color: aliceblue;
           .user {
             width: 7vw;
             height: 7vw;
@@ -324,17 +348,9 @@ onMounted(async () => {
             padding: 5% 10% 0 5%;
             .el-input {
               width: 100%;
-              // 前面插入的选项框咯
+              // 前面插入的选项框
               :deep(.el-input-group__prepend) {
                 width: 16%;
-              }
-              // 背景咯
-              :deep(.el-input__wrapper) {
-                background-color: #1e1e1e;
-              }
-              // 下选框颜色咯
-              :deep(.el-input__inner) {
-                color: aliceblue;
               }
             }
           }
@@ -348,40 +364,5 @@ onMounted(async () => {
       }
     }
   }
-}
-</style>
-
-<!-- 用来解决element的一些不能修改的样式(在scoped中)需要单独写 -->
-<style lang="less">
-// 要修改一些东西需要单独开个style标签 el-select下拉框 el-label
-//下拉框背景色
-.el-popper.is-light.dropDown {
-  background-color: #1e1e1e !important;
-  border: none;
-}
-//下拉框的链接小方块
-.dropDown.el-popper[data-popper-placement^="bottom"] .el-popper__arrow::before {
-  background: #1e1e1e !important;
-  border-color: #4b4b4b;
-}
-//鼠标移动上去的选中色
-.dropDown {
-  .el-select-dropdown__item.hover,
-  .el-select-dropdown__item:hover {
-    background: #cee4fa4f !important;
-  }
-  //下拉框的文本颜色
-  .el-select-dropdown__item {
-    color: aliceblue !important;
-  }
-  //选中之后的颜色
-  .el-select-dropdown__item.selected {
-    background: #51a8ff !important;
-    color: white;
-  }
-}
-.active {
-  background-color: rgba(255, 255, 255, 0.205);
-  color: #58ad5b;
 }
 </style>
