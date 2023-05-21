@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
 export const useUser = defineStore("user", () => {
   const isAuth = ref(false);
+  const isReport = ref(false);
   const pageNum = ref(1);
   const UserInfo = reactive({
     email: "",
@@ -31,6 +32,7 @@ export const useUser = defineStore("user", () => {
     }
   }
   return {
+    isReport,
     isAuth,
     isInference,
     UserInfo,

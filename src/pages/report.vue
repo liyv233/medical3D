@@ -1,22 +1,31 @@
 <template>
   <div class="content">
+ 
+
     <!-- 用来展示的页面 -->
     <div class="form">
+
+         <!-- 登录 -->
+ 
+      <div class="logonBox" v-if="isReport">
+        <sign></sign>
+      </div>
+     
+
+
       <span class="title">
         <p>检 查 报 告 单</p>
       </span>
       <div class="infomation">
-        <el-form
-          :model="patient"
-          label-position="right"
-        >
+        <el-form :model="patient" label-position="right">
           <el-col>
             <el-form-item label="医生工号：">
-              <span>{{
-                isInference == true && isAuth == true
-                  ? UserInfo.work_no
-                  : "请先登陆并且完成推理"
+              <span v-if="isInference == true && isAuth == true">{{
+                UserInfo.work_no
               }}</span>
+              <span v-else>
+                请先<span class="login" @click="isReport = true">登录并完成推理</span>
+              </span>
             </el-form-item>
             <el-form-item label="病人ID：">
               <el-input
@@ -43,18 +52,12 @@
       </div>
     </div>
     <!-- 生成pdf的页面 -->
-    <div
-      class="file"
-      id="pdfDom"
-    >
+    <div class="file" id="pdfDom">
       <span class="title">
         <p>检 查 报 告 单</p>
       </span>
       <div class="infomation">
-        <el-form
-          :model="patient"
-          label-position="right"
-        >
+        <el-form :model="patient" label-position="right">
           <el-col>
             <el-form-item label="姓 名：">
               <span>{{ basicInfo.name }}</span>
@@ -77,13 +80,14 @@
       </div>
       <div class="suggestion">
         <article>医生诊断及建议：</article>
-        <span >{{ basicInfo.suggestion }}</span>
+        <span>{{ basicInfo.suggestion }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import sign from "./sign.vue";
 import { ElMessage } from "element-plus";
 import { storeToRefs } from "pinia";
 import { reactive, ref, computed, getCurrentInstance, onMounted } from "vue";
@@ -94,7 +98,8 @@ import htmlToPdf from "../utils/htmlToPdf";
 const User = useUser();
 const Tool = useTool();
 const { dialogVisible, imgId, description } = storeToRefs(Tool);
-const { UserInfo, isAuth, isInference, basicInfo, isCount } = storeToRefs(User);
+const { UserInfo, isAuth, isReport, isInference, basicInfo, isCount } =
+  storeToRefs(User);
 var patient = reactive({
   patientId: basicInfo.value.patientId,
   suggestion: isAuth.value == true ? basicInfo.value.suggestion : "请先登陆",
@@ -117,9 +122,8 @@ Bus.on("makepdf", async () => {
     method: "POST",
     body: formData,
     headers: {
-    'Authorization': localStorage.getItem("Authorization")
-
-  },
+      Authorization: localStorage.getItem("Authorization"),
+    },
   });
   const data = await res.json();
   console.log(data);
@@ -134,11 +138,11 @@ Bus.on("makepdf", async () => {
 const holder = computed(() => {
   if (isAuth.value == true && isInference.value == true)
     return "请输入诊断结果";
-  else return "请先登陆";
+  else return "请先登陆并完成推理";
 });
 const holder1 = computed(() => {
   if (isAuth.value == true && isInference.value == true) return "请输入患者id";
-  else return "请先登陆";
+  else return "请先登陆并完成推理";
 });
 const disabled = computed(() => {
   if (isAuth.value == true && isInference.value == true) return false;
@@ -151,12 +155,15 @@ onMounted(() => {});
 .content {
   position: relative;
   display: flex;
-  max-height: 60vh;
+  max-height: 100vh;
+
+
   .form {
     justify-content: center;
     align-items: center;
     width: 65vw;
     background-color: rgb(255, 255, 255);
+
     .title {
       display: block;
       width: 100%;
@@ -171,6 +178,13 @@ onMounted(() => {});
     .infomation {
       margin-top: 1vh;
       margin-bottom: 2vh;
+
+      .login {
+        cursor: pointer;
+        padding: 0 0.3vw;
+        border-bottom: 1px solid rgb(10, 26, 248);
+        color: #2c29db;
+      }
       .el-col {
         display: flex;
         flex-direction: column;

@@ -27,7 +27,7 @@ const routes = [
   {
     path: "/sign",
     name: "sign",
-    component: () => import("../pages/sign.vue"),
+    component: () => import("../pages/login.vue"),
   },
 ];
 const router = createRouter({

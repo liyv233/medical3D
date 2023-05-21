@@ -7,6 +7,7 @@
       class="container"
       ref="container"
     >
+
       <!-- register -->
       <div class="form-container sign-up-container">
         <div class="form">
@@ -62,6 +63,14 @@
           </button>
         </div>
       </div>
+     <!-- Cancel -->
+    <span class="cancel" @click="isReport = false"  v-if="isReport">
+      
+    <el-icon :size="20">
+    <Close />
+  </el-icon>
+    </span>
+
       <!-- overlay container -->
       <div class="overlay_container">
         <div class="overlay">
@@ -88,7 +97,7 @@ import { ref, reactive, getCurrentInstance } from "vue";
 import { useUser } from "../store/User";
 import { ElMessage } from "element-plus";
 const User = useUser();
-const { isAuth } = storeToRefs(User);
+const { isAuth , isReport } = storeToRefs(User);
 const { setUserInfo } = User;
 const container = ref(null);
 function AddClass() {
@@ -124,15 +133,22 @@ async function SignIn(In) {
   // 用户数据
   if (response.data._Result__code == 200) {
     setUserInfo(_Result__data, response.data._Result__msg);
+    if(!isReport) {
     ElMessage.success("登陆成功，即将跳转");
     router.push("/user");
+    } else{
+      isReport.value = false ;
+    }
+  
     isAuth.value = true;
   } else if (response.data._Result__code == 201) {
     if (response.data._Result__msg == "用户名或者密码错误！")
       ElMessage.error("账号或者密码错误！");
     else ElMessage.error("该用户不存在！");
+    isReport.value = false ;
   } else {
     ElMessage.error("出错了");
+    isReport.value = false ;
   }
 }
 // 注册
@@ -160,18 +176,31 @@ function forget() {}
 
 <style lang="less" scoped>
 .Sign {
+  z-index: 99;
+ position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 100%;
+  width: 100%;
   .container {
     position: relative;
-    width: 55%;
-    height: 55%;
+    width: 95%;
+    height: 95%;
     background-color: rgb(255, 255, 255);
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.2);
     border-radius: 1.5%;
     overflow: hidden;
+
+    .cancel {
+      position: relative;
+      cursor: pointer;
+      top: 2%;
+      left: 96%;
+      z-index: 999 !important;
+      color: rgb(148, 144, 144);
+    }
+
     .form-container {
       position: absolute;
       top: 0;

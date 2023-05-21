@@ -18,6 +18,7 @@ import Side from "./components/aside.vue";
 </script>
 
 <style lang="less" scoped>
+
 .el-main {
   background-color: aliceblue;
   padding: 0;
