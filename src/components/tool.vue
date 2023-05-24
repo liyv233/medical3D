@@ -83,8 +83,10 @@
                   </el-button>
                   <el-button
                     type="primary"
+                    v-if="fileType == 0"
                     @click="uploadDialog = true"
                     v-show="isInference"
+                    
                   >
                     标注合成
                   </el-button>
@@ -92,6 +94,7 @@
                     type="primary"
                     @click="keepMaxArea"
                     v-show="isInference"
+                    v-if="fileType == 0"
                   >
                     保留最大连通域
                   </el-button>
@@ -99,6 +102,7 @@
                     type="primary"
                     v-show="isInference"
                     @click="pyVisable = true"
+                    v-if="fileType == 0"
                   >
                     后处理脚本上传
                   </el-button>
@@ -107,12 +111,13 @@
                     @click="handleCountNum"
                     v-show="isInference"
                   >
-                    器官计数
+                    计数
                   </el-button>
                   <el-button
                     type="primary"
                     v-show="isInference"
                     @click="getVolume"
+                    v-if="fileType == 0"
                   >
                     器官体积测量
                   </el-button>
@@ -120,6 +125,7 @@
                     type="primary"
                     v-show="isInference"
                     @click="getArea"
+                    v-if="fileType == 0"
                   >
                     器官面积测量
                   </el-button>
@@ -127,6 +133,7 @@
                     type="primary"
                     v-show="isInference"
                     @click="getDia"
+                    v-if="fileType == 0"
                   >
                     器官直径测量
                   </el-button>
@@ -321,7 +328,7 @@ const request = getCurrentInstance().proxy.$request;
 const loading = ref(false);
 const userStore = useUser();
 const Tool = useTool();
-const { isInference, basicInfo, isAuth, isCount, fileType } =
+const { isInference, basicInfo, isAuth, isCount, fileType , isFiter,isadd,see} =
   storeToRefs(userStore);
 const {
   handleSave,
@@ -396,11 +403,11 @@ async function handleMakePDF() {
   if (res.data._Result__code == 200) {
     basicInfo.value.name = res.data._Result__data.patient_name;
     basicInfo.value.sex = res.data._Result__data.sex;
+    basicInfo.value.id = res.data._Result__data.id ;
   } else {
     ElMessage.error("患者ID错误");
   }
   loading.value = false;
-  console.log(basicInfo.value);
   const flag = Bus.emit("makepdf");
   if (flag) dialogVisible.value = false;
 }
@@ -430,10 +437,13 @@ async function operations() {
   var formData = new FormData();
   var currentFile = volumes.value[0].raw;
   formData.append("file", currentFile);
-  var op = "";
-  if (fileType.value == 0) op = "img";
-  else op = "lungs";
-  const res = await fetch("http://10.33.39.163:5000/" + op, {
+  var op = "imgs";
+  console.log(currentFile);
+  fileType.value = currentFile.name.search(/dcm/)==-1 ? 0:1 ;
+  if (fileType.value == 1) op = op +"/lungs";
+ 
+  console.log(op);
+  const res = await fetch("http://10.33.89.159:5000/" + op, {
     method: "POST",
     body: formData,
   });
@@ -441,15 +451,17 @@ async function operations() {
   if (data._Result__code == 200) {
     baseUrl.value = data._Result__data.base_url;
     imgName.value = data._Result__data.img_name;
-    imgId.value = data._Result__data.imgId;
+    imgId.value = data._Result__data.img_id;
     ElMessage.success("上传成功,请稍等...");
     isInference.value = true;
-    let filePath = "http://10.33.39.163:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://10.33.89.159:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
   } else {
     ElMessage.error("上传失败了");
   }
   loading.value = false;
+  isFiter.value = false ;
+  isadd.value = false ;
 }
 // 合并标注
 var uploadDialog = ref(false);
@@ -462,7 +474,8 @@ async function makeAll() {
   var formData = new FormData();
   formData.append("file", newFile.raw);
   formData.append("img_name", imgName.value);
-  const res = await fetch("http://10.33.39.163:5000/imgs/graphs", {
+  formData.append("isFiter", isFiter.value);
+  const res = await fetch("http://10.33.89.159:5000/imgs/graphs", {
     method: "POST",
     body: formData,
   });
@@ -473,8 +486,10 @@ async function makeAll() {
     imgId.value = data._Result__data.imgId;
     ElMessage.success("上传成功,请稍等...");
     isInference.value = true;
-    let filePath = "http://10.33.39.163:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://10.33.89.159:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
+    isadd.value = true ;
+
   } else {
     ElMessage.error("上传失败了");
   }
@@ -490,7 +505,10 @@ async function keepMaxArea() {
   formData.append("x", str[0]);
   formData.append("y", str[1]);
   formData.append("z", str[2]);
-  const res = await fetch("http://10.33.39.163:5000/imgs/domains", {
+  formData.append("isFiter", isFiter.value);
+  formData.append("isadd", isadd.value);
+
+  const res = await fetch("http://10.33.89.159:5000/imgs/domains", {
     method: "POST",
     body: formData,
   });
@@ -500,8 +518,9 @@ async function keepMaxArea() {
     imgName.value = data._Result__data.img_name;
     ElMessage.success("请稍等...");
     isInference.value = true;
-    let filePath = "http://10.33.39.163:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://10.33.89.159:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
+    isFiter.value = true ;
   } else {
     ElMessage.error("上传失败了");
   }
@@ -518,7 +537,11 @@ async function uploadAfterFile() {
   var formData = new FormData();
   formData.append("file", pyFile.raw);
   formData.append("img_name", imgName.value);
-  const res = await fetch("http://10.33.39.163:5000/imgs/option", {
+  formData.append("isFiter", isFiter.value);
+  formData.append("isadd", isadd.value);
+
+
+  const res = await fetch("http://10.33.89.159:5000/imgs/option", {
     method: "POST",
     body: formData,
   });
@@ -529,7 +552,7 @@ async function uploadAfterFile() {
     baseUrl.value = data._Result__data.base_url;
     imgName.value = data._Result__data.img_name;
     ElMessage.success("上传成功,请稍等...");
-    let filePath = "http://10.33.39.163:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://10.33.89.159:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
   } else {
     ElMessage.error("上传失败了");
@@ -546,7 +569,11 @@ async function getArea() {
   formData.append("x", string[0]);
   formData.append("y", string[1]);
   formData.append("z", string[2]);
-  const res = await fetch("http://10.33.39.163:5000/imgs/area", {
+  formData.append("isFiter", isFiter.value);
+  formData.append("isadd", isadd.value);
+
+
+  const res = await fetch("http://10.33.89.159:5000/imgs/area", {
     method: "POST",
     body: formData,
   });
@@ -571,11 +598,16 @@ async function getVolume() {
   loading.value = true;
   let formData = new FormData();
   formData.append("img_name", imgName.value);
-  const res = await fetch("http://10.33.39.163:5000/imgs/volume", {
+  formData.append("isFiter", isFiter.value);
+  formData.append("isadd", isadd.value);
+
+
+  const res = await fetch("http://10.33.89.159:5000/imgs/volume", {
     method: "POST",
     body: formData,
   });
   const data = await res.json();
+  console.log(data);
   if (data._Result__code == 200) {
     var str = data._Result__data.volumes;
     ElNotification({
@@ -598,7 +630,10 @@ async function getDia() {
   formData.append("x", string[0]);
   formData.append("y", string[1]);
   formData.append("z", string[2]);
-  const res = await fetch("http://10.33.39.163:5000/imgs/long", {
+  formData.append("isFiter", isFiter.value);
+  formData.append("isadd", isadd.value);
+
+  const res = await fetch("http://10.33.89.159:5000/imgs/long", {
     method: "POST",
     body: formData,
   });
@@ -626,6 +661,12 @@ const goHome = () => {
     type: "warning",
   })
     .then(() => {
+      isInference.value = false;
+      if(see.value){
+        // Todo：如果从历史记录进来需要做什么操作，没想到
+      }else{
+        volumes.value = [];
+      }
       router.push("/");
     })
     .catch((e) => {

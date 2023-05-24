@@ -24,7 +24,7 @@
                 UserInfo.work_no
               }}</span>
               <span v-else>
-                请先<span class="login" @click="isReport = true">登录并完成推理</span>
+                请先<span class="login" @click="signReport">登录并完成推理</span>
               </span>
             </el-form-item>
             <el-form-item label="病人ID：">
@@ -113,12 +113,13 @@ const handleCount = computed(() => {
 const request = getCurrentInstance().proxy.$request;
 Bus.on("makepdf", async () => {
   var formData = new FormData();
+  console.log(basicInfo.value);
   formData.append("opinion", basicInfo.value.suggestion);
   formData.append("description", description.value);
-  formData.append("patient_id", basicInfo.value.patientId);
+  formData.append("patient_id", basicInfo.value.id);
   formData.append("img_id", imgId.value);
   formData.append("doctor_id", UserInfo.value.doctor_id);
-  const res = await fetch("http://10.33.39.163:5000/records", {
+  const res = await fetch("http://10.33.89.159:5000/records", {
     method: "POST",
     body: formData,
     headers: {
@@ -131,6 +132,11 @@ Bus.on("makepdf", async () => {
     htmlToPdf.getPdf(basicInfo.value.patientId + "报告单");
     dialogVisible.value = false;
     ElMessage.success("正在保存云端成功.....");
+    basicInfo.value.id = " " ;
+    basicInfo.value.name = " " ; 
+    basicInfo.value.patientId="";
+    basicInfo.value.sex="";
+    basicInfo.value.suggestion="" ;
   } else {
     ElMessage.error("保存云端记录失败.....");
   }
@@ -148,6 +154,9 @@ const disabled = computed(() => {
   if (isAuth.value == true && isInference.value == true) return false;
   else return true;
 });
+function signReport() {
+  isReport.value = true ;
+} 
 onMounted(() => {});
 </script>
 
@@ -157,7 +166,11 @@ onMounted(() => {});
   display: flex;
   max-height: 100vh;
 
-
+.logonBox {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
   .form {
     justify-content: center;
     align-items: center;

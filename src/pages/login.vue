@@ -1,6 +1,6 @@
 <template>
   <div class="signBox">
-    <side style="width: 60%; height: 70%;"></side>
+    <side ></side>
   </div>
 </template>
 
@@ -19,7 +19,9 @@ onMounted(() => {
 
 <style>
 .signBox {
-margin-top: 15vh;
-  margin-left: 15%;
+  margin-left: 16.5vw;
+  margin-top: 7.5vh;
+  width: 65vw;
+  height: 75vh;
 }
 </style>

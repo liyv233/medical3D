@@ -42,42 +42,45 @@ import tool from "../components/tool.vue";
 import Bus from "../utils/eventbus";
 // use Store
 const userStore = useUser();
-const { isInference } = storeToRefs(userStore);
+const { isInference,see,fileType } = storeToRefs(userStore);
+const { getPath } = userStore;
 const Tool = useTool();
 const router = useRouter();
-var { toolSwitch, lastPos, volumes, imgId } = storeToRefs(Tool);
+var { toolSwitch, lastPos, volumes } = storeToRefs(Tool);
 const { handleTool, getVolumesFile, CanvasInit, countNum } = Tool;
-
 // attach to canvas
-var View = CanvasInit();
 async function Attach() {
+  var View = CanvasInit();
   const file = getVolumesFile();
   View.attachTo("nv1");
   const nvimage = await NVImage.loadFromFile({ file: file[0].raw });
   View.addVolume(nvimage);
 }
 // 组件通信
-
 Bus.on("selectView", async (url) => {
-  View = CanvasInit();
-  View.attachTo("nv2");
+  var View = CanvasInit();
+    View.attachTo("nv2");
   const nvimage = await NVImage.loadFromUrl({ url });
   View.addVolume(nvimage);
 });
+
 // onMounted
 onMounted(async () => {
-  if (volumes.value.length == 0) {
-    ElMessage({
-      type: "warning",
-      message: "请先提交文件",
-    });
-    router.push("/");
-  } else {
-    if (isInference.value == false) Attach();
-    else {
-      isInference.value = false;
-      Attach();
+  if(volumes.value.length == 0 ){
+    if(see.value == false){
+      ElMessage({
+        type: "warning",
+        message: "请先提交文件",
+      });
+      router.push("/");
+    } else{
+      let path = getPath();
+      isInference.value = true
+      Bus.emit("selectView", path.value);
+      fileType.value = path.value.search(/dcm/)==-1 ? 0 : 1;
     }
+  } else {
+    Attach();
   }
 });
 </script>

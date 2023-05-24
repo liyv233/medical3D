@@ -1,7 +1,9 @@
-import { defineStore } from "pinia";
+import { defineStore ,storeToRefs} from "pinia";
 import { ref, reactive } from "vue";
 import { Niivue } from "@niivue/niivue";
-import { ElMessage } from "element-plus";
+import { useUser } from "../store/user";
+const userStore = useUser();
+const { isFiter,isadd} = storeToRefs(userStore);
 export const useTool = defineStore("tool", () => {
   // 初始化渲染器
   var View = reactive({});
@@ -21,6 +23,9 @@ export const useTool = defineStore("tool", () => {
 
   // 相关配置
   var imgName = ref("");
+  function setImgName(value){
+    imgName.value = value;
+  }
   var baseUrl = ref("");
   var imgId = ref(0);
   var lastPos = reactive({ vox: "", str: "" });
@@ -160,7 +165,11 @@ export const useTool = defineStore("tool", () => {
   async function countNum() {
     var data = new FormData();
     data.append("img_name", imgName.value);
-    const res = await fetch("http://10.33.39.163:5000/imgs/nums", {
+    data.append("isFiter", isFiter.value);
+    data.append("isadd", isadd.value);
+
+
+    const res = await fetch("http://10.33.89.159:5000/imgs/nums", {
       method: "POST",
       body: data,
     });
@@ -183,6 +192,7 @@ export const useTool = defineStore("tool", () => {
     AddVolumesFile,
     RemoveVolumesFile,
     countNum,
+    setImgName,
     toolSwitch,
     lastPos,
     volumes,

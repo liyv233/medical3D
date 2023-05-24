@@ -11,6 +11,7 @@
       :limit="1"
       :auto-upload="false"
       accept=".nii,.nii.gz,.dcm,.raw,.mhd"
+      :on-change="addFile"
       action="none"
     >
       <el-button type="primary">选择文件</el-button>

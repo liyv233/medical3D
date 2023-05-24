@@ -29,25 +29,22 @@
                     label="模型"
                     prop="img_url"
                   />
-                  <el-table-column
-                    label="类型"
-                    prop="modeType"
-                  />
+        
                   <el-table-column
                     prop="patient_no"
                     label="患者编号"
                   />
                   <el-table-column
-                    prop="opinion"
-                    label="诊断部位"
-                  />
-                  <el-table-column
                     prop="description"
                     label="影像诊断结果"
                   />
+                  <el-table-column
+                    prop="opinion"
+                    label="影像诊断结果"
+                  />
                   <el-table-column label="操作">
-                    <template #default>
-                      <el-button type="primary"> 查看 </el-button>
+                    <template #default="scope">
+                      <el-button type="primary" @click="seeImg(scope.row)"> 查看 </el-button>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -64,11 +61,11 @@
                 >
                   <span>
                     姓名：
-                    <p>{{ UserInfo.work_no }}</p>
+                    <p>{{ UserInfo.username }}</p>
                   </span>
                   <span>
                     工号：
-                    <p>{{ UserInfo.d_name }}</p>
+                    <p>{{ UserInfo.work_no }}</p>
                   </span>
                 </div>
                 <div
@@ -92,7 +89,7 @@
                 </div>
               </div>
             </div>
-            <div class="bottom">
+            <div class="bottom" v-if="isAuth">
               <div style="font-size: 24px; font-weight: 700">结果查询</div>
               <div class="searchBox">
                 <el-input
@@ -109,7 +106,7 @@
                         :value="0"
                       />
                       <el-option
-                        label="诊断部位"
+                        label="诊断意见"
                         :value="1"
                       />
                       <el-option
@@ -143,7 +140,7 @@
 </template>
 <!--  -->
 <script setup>
-import { ref, onMounted, getCurrentInstance } from "vue";
+import { ref, onMounted, getCurrentInstance,reactive, computed} from "vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useUser } from "../store/user";
@@ -151,11 +148,24 @@ import { ElMessage } from "element-plus";
 import { ArrowRight } from "@element-plus/icons-vue";
 import reasionUpload from "./reasionUpload.vue";
 import lungUpload from "./lungUpload.vue";
+import {useTool} from "../store/Tool";
+import Bus from "../utils/eventbus";
 const User = useUser();
-const { UserInfo, pageNum, isAuth } = storeToRefs(User);
-const { setLungDialogVisible, setReasionDialogVisible } = User;
-
+const { UserInfo, pageNum, isAuth , fileType} = storeToRefs(User);
+const { setLungDialogVisible, setReasionDialogVisible,setSee } = User;
+const Tool = useTool();
+const {setImgName} = Tool;
 var request = getCurrentInstance().proxy.$request;
+
+var params = reactive({
+  w_no: "",
+  p_no: "",
+  option: "",
+  description: "",
+  page: pageNum.value,
+  size: 10,
+});
+
 const select = ref(0);
 const inputInfomation = ref("");
 const urls = [
@@ -164,6 +174,7 @@ const urls = [
   "/records/description",
   "/records/wp",
 ];
+
 var SearchData = ref([]);
 async function startSearch() {
   SearchData.value = [];
@@ -187,6 +198,7 @@ async function startSearch() {
   for (let i = 0; i < _Result__data.length; i++)
     SearchData.value.push(_Result__data[i]);
   inputInfomation.value = "";
+
 }
 
 const router = useRouter();
@@ -194,7 +206,14 @@ const goToSign = () => {
   router.push("/sign");
 };
 
-onMounted(async () => {
+async function seeImg(row) {
+  let filePath = "http://10.33.89.159:5000/static/imgs/"+row.img_url;
+  setSee(true,filePath);
+  setImgName(row.img_url);
+  router.push("/preview")
+} 
+
+async function init() {
   var res = await request.get("/records", {
     params: {
       w_no: UserInfo.work_no,
@@ -205,8 +224,11 @@ onMounted(async () => {
       size: 1000,
     },
   });
-  SearchData.value = res.data._Result__data;
-});
+
+  let { _Result__data } = res.data;
+   SearchData.value = _Result__data; 
+} 
+
 </script>
 
 <style lang="less" scoped>
@@ -286,6 +308,9 @@ onMounted(async () => {
             :deep(.el-table__inner-wrapper::before) {
               width: 100%;
               height: 0;
+            }
+            :deep(.el-table__row .cell) {
+              color: #000;
             }
             // 头部下边框
             :deep(.el-table__header) {

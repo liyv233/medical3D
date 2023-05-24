@@ -3,7 +3,7 @@
     class="Sign"
     v-loading="loading"
   >
-    <div class="outer">
+    <div class="outer" v-if="!isReport">
       <el-icon
         @click="goBack"
         :size="20"
@@ -105,8 +105,9 @@ import { ref, reactive, getCurrentInstance } from "vue";
 import { useUser } from "../store/User";
 import { ElMessage } from "element-plus";
 import { ArrowLeft } from "@element-plus/icons-vue";
+import Bus from "../utils/eventbus";
 const User = useUser();
-const { isAuth , isReport } = storeToRefs(User);
+const { isAuth , isReport , UserInfo } = storeToRefs(User);
 const { setUserInfo } = User;
 const container = ref(null);
 function AddClass() {
@@ -143,9 +144,9 @@ async function SignIn(In) {
   // 用户数据
   if (response.data._Result__code == 200) {
     setUserInfo(_Result__data, response.data._Result__msg);
-    if(!isReport) {
+    if(!isReport.value) {
     ElMessage.success("登陆成功，即将跳转");
-    router.push("/user");
+    router.push("/");
     } else{
       isReport.value = false ;
     }
@@ -174,7 +175,7 @@ async function Register(Reg) {
     ElMessage.success("注册成功，将为你跳转到登陆界面。");
     container.value.classList.remove("active");
   } else if (response.data._Result__code == 201) {
-    ElMessage.error("该用户已经存在。");
+    ElMessage.error(response.data._Result__msg);
     container.value.classList.remove("active");
   } else {
     ElMessage.error("出错了");
@@ -230,7 +231,7 @@ const goBack = () => {
       position: relative;
       cursor: pointer;
       top: 2%;
-      left: 96%;
+      left: 47%;
       z-index: 999 !important;
       color: rgb(148, 144, 144);
     }
