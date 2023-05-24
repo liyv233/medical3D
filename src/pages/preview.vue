@@ -47,6 +47,7 @@ const Tool = useTool();
 const router = useRouter();
 var { toolSwitch, lastPos, volumes, imgId } = storeToRefs(Tool);
 const { handleTool, getVolumesFile, CanvasInit, countNum } = Tool;
+
 // attach to canvas
 var View = CanvasInit();
 async function Attach() {

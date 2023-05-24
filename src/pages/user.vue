@@ -111,6 +111,7 @@ const { UserInfo, pageNum } = storeToRefs(User);
 var select = ref(0);
 const SearchData = ref([]);
 var request = getCurrentInstance().proxy.$request;
+
 const urls = [
   "/records",
   "/records/option",

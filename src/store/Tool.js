@@ -15,7 +15,7 @@ export const useTool = defineStore("tool", () => {
     View.opts.multiplanarForceRender = true;
     View.setRadiologicalConvention(false);
     View.drawOpacity = 0.4;
-    View.setSliceMM(true);
+    View.setSliceMM(false);
     return View;
   }
 
@@ -146,17 +146,7 @@ export const useTool = defineStore("tool", () => {
   // 添加文件时的相关操作
   var volumes = ref([]);
   function AddVolumesFile(file) {
-    if (volumes.value.length == 0) {
-      volumes.value.push(file);
-    } else {
-      RemoveVolumesFile();
-      volumes.value.push(file);
-    }
-    ElMessage({
-      type: "warning",
-      message: "仅支持单文件上传",
-      showClose: true,
-    });
+    volumes.value.push(file);
   }
   function RemoveVolumesFile() {
     volumes.value.pop();

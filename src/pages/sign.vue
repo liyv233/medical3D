@@ -3,6 +3,14 @@
     class="Sign"
     v-loading="loading"
   >
+    <div class="outer">
+      <el-icon
+        @click="goBack"
+        :size="20"
+      >
+        <ArrowLeft />
+      </el-icon>
+    </div>
     <div
       class="container"
       ref="container"
@@ -96,6 +104,7 @@ import { storeToRefs } from "pinia";
 import { ref, reactive, getCurrentInstance } from "vue";
 import { useUser } from "../store/User";
 import { ElMessage } from "element-plus";
+import { ArrowLeft } from "@element-plus/icons-vue";
 const User = useUser();
 const { isAuth , isReport } = storeToRefs(User);
 const { setUserInfo } = User;
@@ -106,7 +115,8 @@ function AddClass() {
 function RemoveClass() {
   container.value.classList.remove("active");
 }
-// 登陆、注册
+
+// 登陆、注册的变量
 const router = useRouter();
 var In = reactive({
   phone: "",
@@ -117,8 +127,8 @@ var Reg = reactive({
   phone: "",
   password: "",
 });
+// 当前实例
 const instance = getCurrentInstance();
-
 // 登陆
 var loading = ref(false);
 async function SignIn(In) {
@@ -170,8 +180,10 @@ async function Register(Reg) {
     ElMessage.error("出错了");
   }
 }
-// 密码
-function forget() {}
+// 返回主界面
+const goBack = () => {
+  router.push("/");
+};
 </script>
 
 <style lang="less" scoped>
@@ -183,6 +195,28 @@ function forget() {}
   align-items: center;
   height: 100%;
   width: 100%;
+  position: relative;
+  .outer {
+    z-index: 100;
+    position: absolute;
+    left: 5%;
+    top: 5%;
+    width: 50px;
+    height: 50px;
+    .el-icon {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 1px solid #aaa;
+      background-color: #fff;
+      transition: all 0.3s ease-in-out;
+      cursor: pointer;
+      &:hover {
+        background-color: #aaa;
+        color: aliceblue;
+      }
+    }
+  }
   .container {
     position: relative;
     width: 95%;

@@ -1,6 +1,9 @@
 <template>
   <Transition>
-    <div class="mask" v-loading="loading">
+    <div
+      class="mask"
+      v-loading="loading"
+    >
       <div class="tool">
         <div class="toolTop">
           <el-icon
@@ -10,17 +13,32 @@
           >
             <Back />
           </el-icon>
+          <el-icon
+            :size="40"
+            @click="goHome"
+          >
+            <HomeFilled />
+          </el-icon>
         </div>
         <div class="toolContent">
           <el-collapse v-model="activeNames">
             <!-- material -->
-            <el-collapse-item title="模型" name="0">
+            <el-collapse-item
+              title="模型"
+              name="0"
+            >
               <div class="mode">
                 <!-- 推理前 -->
-                <div class="volumes" v-show="!isInference">
+                <div
+                  class="volumes"
+                  v-show="!isInference"
+                >
                   <article>推理前模型</article>
                   <span>
-                    <select v-model="Material" style="width: 5vw">
+                    <select
+                      v-model="Material"
+                      style="width: 5vw"
+                    >
                       <option
                         v-for="material in materials"
                         :value="material.id"
@@ -33,10 +51,16 @@
                   </span>
                 </div>
                 <!-- 推理后 -->
-                <div class="volumes" v-show="isInference">
+                <div
+                  class="volumes"
+                  v-show="isInference"
+                >
                   <article>推理完成模型</article>
                   <span>
-                    <select v-model="afterMaterial" style="width: 5vw">
+                    <select
+                      v-model="afterMaterial"
+                      style="width: 5vw"
+                    >
                       <option
                         v-for="material in materials"
                         :value="material.id"
@@ -52,10 +76,10 @@
                 <div class="btn">
                   <el-button
                     type="primary"
-                    @click="Reasoning()"
+                    @click="operations()"
                     v-show="!isInference"
                   >
-                    推理
+                    {{ fileType == 0 ? "推理" : "肺结节" }}
                   </el-button>
                   <el-button
                     type="primary"
@@ -110,7 +134,10 @@
               </div>
             </el-collapse-item>
             <!-- mouse -->
-            <el-collapse-item title="右键功能" name="1">
+            <el-collapse-item
+              title="右键功能"
+              name="1"
+            >
               <el-radio-group v-model="Mouse">
                 <el-radio
                   size="large"
@@ -122,7 +149,10 @@
               </el-radio-group>
             </el-collapse-item>
             <!-- screen -->
-            <el-collapse-item title="视图" name="2">
+            <el-collapse-item
+              title="视图"
+              name="2"
+            >
               <el-radio-group v-model="Screen">
                 <el-radio
                   size="large"
@@ -134,7 +164,10 @@
               </el-radio-group>
             </el-collapse-item>
             <!-- drawing -->
-            <el-collapse-item title="标注" name="3">
+            <el-collapse-item
+              title="标注"
+              name="3"
+            >
               <div>
                 <el-checkbox v-model="Pen">开启/关闭</el-checkbox>
                 <el-checkbox v-model="isFill">是否填充</el-checkbox>
@@ -152,7 +185,10 @@
               </div>
             </el-collapse-item>
             <!-- save -->
-            <el-collapse-item title="保存" name="4">
+            <el-collapse-item
+              title="保存"
+              name="4"
+            >
               <el-row class="mb-4">
                 <el-button
                   type="primary"
@@ -164,9 +200,15 @@
               </el-row>
             </el-collapse-item>
             <!-- 报告导出 -->
-            <el-collapse-item title="导出报告" name="5">
+            <el-collapse-item
+              title="导出报告"
+              name="5"
+            >
               <el-row class="mb-4">
-                <el-button type="primary" @click="dialogVisible = true">
+                <el-button
+                  type="primary"
+                  @click="dialogVisible = true"
+                >
                   生成报告
                 </el-button>
               </el-row>
@@ -174,7 +216,10 @@
           </el-collapse>
         </div>
       </div>
-      <div class="other" @click="handleTool(BeChooseColor, Pen, isFill)"></div>
+      <div
+        class="other"
+        @click="handleTool(BeChooseColor, Pen, isFill)"
+      ></div>
       <!-- 后处理 -->
       <el-dialog
         v-model="pyVisable"
@@ -245,9 +290,14 @@
       <el-dialog v-model="dialogVisible">
         <report></report>
         <template #footer>
-          <span class="dialog-footer" >
+          <span class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="handleMakePDF"> 确 定 </el-button>
+            <el-button
+              type="primary"
+              @click="handleMakePDF"
+            >
+              确 定
+            </el-button>
           </span>
         </template>
       </el-dialog>
@@ -262,15 +312,17 @@ import { storeToRefs } from "pinia";
 import { useUser } from "../store/user";
 import { ElMessage } from "element-plus";
 import Bus from "../utils/eventbus";
-import { ElNotification } from "element-plus";
+import { ElNotification, ElMessageBox } from "element-plus";
 import report from "../pages/report.vue";
+import { useRouter } from "vue-router";
 // request
 const request = getCurrentInstance().proxy.$request;
 // pinia
 const loading = ref(false);
 const userStore = useUser();
 const Tool = useTool();
-const { isInference, basicInfo, isAuth, isCount } = storeToRefs(userStore);
+const { isInference, basicInfo, isAuth, isCount, fileType } =
+  storeToRefs(userStore);
 const {
   handleSave,
   handleScreen,
@@ -372,18 +424,20 @@ async function handleCountNum() {
   }
   loading.value = false;
 }
-// 推理
-async function Reasoning() {
+// 推理 或 肺结节
+async function operations() {
   loading.value = true;
   var formData = new FormData();
   var currentFile = volumes.value[0].raw;
   formData.append("file", currentFile);
-  const res = await fetch("http://10.33.39.163:5000/imgs", {
+  var op = "";
+  if (fileType.value == 0) op = "img";
+  else op = "lungs";
+  const res = await fetch("http://10.33.39.163:5000/" + op, {
     method: "POST",
     body: formData,
   });
   const data = await res.json();
-  console.log(data);
   if (data._Result__code == 200) {
     baseUrl.value = data._Result__data.base_url;
     imgName.value = data._Result__data.img_name;
@@ -563,6 +617,21 @@ async function getDia() {
   }
   loading.value = false;
 }
+// 返回
+const router = useRouter();
+const goHome = () => {
+  ElMessageBox.confirm("确定回到主界面？", "Warning", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      router.push("/");
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+};
 </script>
 
 <style lang="less" scoped>
@@ -585,6 +654,8 @@ async function getDia() {
     width: 18vw;
     height: 100vh;
     .toolTop {
+      display: flex;
+      justify-content: space-between;
       .el-icon {
         cursor: pointer;
         padding-left: 0.5vw;
@@ -691,5 +762,4 @@ async function getDia() {
 :deep(.el-upload-list__item-info) {
   width: 5vw;
 }
-
 </style>

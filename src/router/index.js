@@ -9,7 +9,7 @@ const routes = [
   {
     path: "/",
     name: "/",
-    component: () => import("../pages/upload.vue"),
+    component: () => import("../components/main.vue"),
   },
   {
     path: "/preview",
