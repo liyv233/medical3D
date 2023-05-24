@@ -220,6 +220,87 @@
                 </el-button>
               </el-row>
             </el-collapse-item>
+            <!-- 后处理 -->
+            <el-dialog
+              v-model="pyVisable"
+              title="后处理脚本上传"
+              style="position: relative"
+            >
+              <el-upload
+                class="upload-demo upload"
+                :multiple="false"
+                :on-change="changePyFile"
+                :limit="1"
+                :auto-upload="false"
+                action="none"
+                accept=".py"
+              >
+                <el-button type="primary">点击上传</el-button>
+                <template #tip>
+                  <div
+                    class="el-upload__tip"
+                    style="font-size: 18px; margin-top: 4vh"
+                  >
+                    请上传后处理脚本
+                  </div>
+                </template>
+              </el-upload>
+              <el-button
+                type="primary"
+                style="position: absolute; bottom: 10px; right: 10px"
+                @click="uploadAfterFile"
+              >
+                确定
+              </el-button>
+            </el-dialog>
+            <!-- 合并标注 -->
+            <el-dialog
+              v-model="uploadDialog"
+              title="合并标注"
+              style="position: relative"
+            >
+              <el-upload
+                class="upload-demo upload"
+                :multiple="false"
+                :on-change="changeNewfile"
+                :limit="1"
+                :auto-upload="false"
+                action="none"
+                accept=".nii"
+              >
+                <el-button type="primary">点击上传</el-button>
+                <template #tip>
+                  <div
+                    class="el-upload__tip"
+                    style="font-size: 18px; margin-top: 4vh"
+                  >
+                    请选在模型图中标注出区域并获取文件
+                  </div>
+                </template>
+              </el-upload>
+              <el-button
+                type="primary"
+                style="position: absolute; bottom: 10px; right: 10px"
+                @click="makeAll"
+              >
+                确定
+              </el-button>
+            </el-dialog>
+            <!-- 文档生成 -->
+            <el-dialog v-model="dialogVisible">
+              <report></report>
+              <template #footer>
+                <span class="dialog-footer">
+                  <el-button @click="dialogVisible = false">取 消</el-button>
+                  <el-button
+                    type="primary"
+                    @click="handleMakePDF"
+                  >
+                    确 定
+                  </el-button>
+                </span>
+              </template>
+            </el-dialog>
           </el-collapse>
         </div>
       </div>
@@ -227,87 +308,6 @@
         class="other"
         @click="handleTool(BeChooseColor, Pen, isFill)"
       ></div>
-      <!-- 后处理 -->
-      <el-dialog
-        v-model="pyVisable"
-        title="后处理脚本上传"
-        style="position: relative"
-      >
-        <el-upload
-          class="upload-demo upload"
-          :multiple="false"
-          :on-change="changePyFile"
-          :limit="1"
-          :auto-upload="false"
-          action="none"
-          accept=".py"
-        >
-          <el-button type="primary">点击上传</el-button>
-          <template #tip>
-            <div
-              class="el-upload__tip"
-              style="font-size: 18px; margin-top: 4vh"
-            >
-              请上传后处理脚本
-            </div>
-          </template>
-        </el-upload>
-        <el-button
-          type="primary"
-          style="position: absolute; bottom: 10px; right: 10px"
-          @click="uploadAfterFile"
-        >
-          确定
-        </el-button>
-      </el-dialog>
-      <!-- 合并标注 -->
-      <el-dialog
-        v-model="uploadDialog"
-        title="合并标注"
-        style="position: relative"
-      >
-        <el-upload
-          class="upload-demo upload"
-          :multiple="false"
-          :on-change="changeNewfile"
-          :limit="1"
-          :auto-upload="false"
-          action="none"
-          accept=".nii"
-        >
-          <el-button type="primary">点击上传</el-button>
-          <template #tip>
-            <div
-              class="el-upload__tip"
-              style="font-size: 18px; margin-top: 4vh"
-            >
-              请选在模型图中标注出区域并获取文件
-            </div>
-          </template>
-        </el-upload>
-        <el-button
-          type="primary"
-          style="position: absolute; bottom: 10px; right: 10px"
-          @click="makeAll"
-        >
-          确定
-        </el-button>
-      </el-dialog>
-      <!-- 文档生成 -->
-      <el-dialog v-model="dialogVisible">
-        <report></report>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button
-              type="primary"
-              @click="handleMakePDF"
-            >
-              确 定
-            </el-button>
-          </span>
-        </template>
-      </el-dialog>
     </div>
   </Transition>
 </template>
@@ -347,11 +347,6 @@ const {
   imgName,
   baseUrl,
 } = storeToRefs(Tool);
-// disabled
-const disabled = computed(() => {
-  if (isAuth.value == true && isInference.value == true) return false;
-  else return true;
-});
 // some define about tool
 const mouses = reactive([
   { id: "none", label: "无" },
@@ -399,7 +394,6 @@ const activeNames = ref(["1", "2", "3", "4", "5", "0"]);
 async function handleMakePDF() {
   loading.value = true;
   const res = await request.get(`/patients/${basicInfo.value.patientId}`);
-  console.log(res);
   if (res.data._Result__code == 200) {
     basicInfo.value.name = res.data._Result__data.patient_name;
     basicInfo.value.sex = res.data._Result__data.sex;
