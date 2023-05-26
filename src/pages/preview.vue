@@ -21,7 +21,7 @@
     <div class="port">
       <div class="pos">
         <article>坐标：[{{ lastPos.vox || "0 ,0 ,0" }}]</article>
-        <article>器官id：{{ lastPos.str || "0" }}</article>
+        <article>器官id：{{ lastPos.str.split(" ")[1] || "0" }}</article>
       </div>
     </div>
   </div>

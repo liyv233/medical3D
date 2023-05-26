@@ -113,13 +113,12 @@ const handleCount = computed(() => {
 const request = getCurrentInstance().proxy.$request;
 Bus.on("makepdf", async () => {
   var formData = new FormData();
-  console.log(basicInfo.value);
   formData.append("opinion", basicInfo.value.suggestion);
   formData.append("description", description.value);
-  formData.append("patient_id", basicInfo.value.id);
+  formData.append("patient_id", basicInfo.value.pid);
   formData.append("img_id", imgId.value);
   formData.append("doctor_id", UserInfo.value.doctor_id);
-  const res = await fetch("http://10.33.89.159:5000/records", {
+  const res = await fetch("http://192.168.43.145:5000/records", {
     method: "POST",
     body: formData,
     headers: {
@@ -132,7 +131,7 @@ Bus.on("makepdf", async () => {
     htmlToPdf.getPdf(basicInfo.value.patientId + "报告单");
     dialogVisible.value = false;
     ElMessage.success("正在保存云端成功.....");
-    basicInfo.value.id = " " ;
+    basicInfo.value.id = 0 ;
     basicInfo.value.name = " " ; 
     basicInfo.value.patientId="";
     basicInfo.value.sex="";

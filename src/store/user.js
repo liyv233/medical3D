@@ -27,11 +27,12 @@ export const useUser = defineStore("user", () => {
     doctor_id: "",
   });
   const basicInfo = reactive({
+    pid: 0 ,
     name: "",
     sex: "",
     patientId: "",
     suggestion: "",
-    id:""
+   
   });
   const isCount = ref(false);
   const isInference = ref(false);

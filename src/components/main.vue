@@ -36,11 +36,11 @@
                   />
                   <el-table-column
                     prop="description"
-                    label="影像诊断结果"
+                    label="影像所见"
                   />
                   <el-table-column
                     prop="opinion"
-                    label="影像诊断结果"
+                    label="诊断结果"
                   />
                   <el-table-column label="操作">
                     <template #default="scope">
@@ -207,7 +207,7 @@ const goToSign = () => {
 };
 
 async function seeImg(row) {
-  let filePath = "http://10.33.89.159:5000/static/imgs/"+row.img_url;
+  let filePath = "http://192.168.43.145:5000/static/imgs/"+row.img_url;
   setSee(true,filePath);
   setImgName(row.img_url);
   router.push("/preview")

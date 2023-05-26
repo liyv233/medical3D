@@ -364,13 +364,24 @@ const screens = reactive([
   { id: "ACSR", label: "全部展示" },
 ]);
 const colors = reactive([
-  { id: "Red", label: "红" },
-  { id: "Green", label: "绿" },
-  { id: "Blue", label: "蓝" },
-  { id: "Yellow", label: "黄" },
-  { id: "Cyan", label: "青" },
-  { id: "Purple", label: "紫" },
-  { id: "Erase", label: "橡皮" },
+ 
+  { id: "red", label: "1" },
+  { id: 2, label: "2" },
+  { id: 3, label: "3" },
+  { id: 4, label: "4" },
+  { id: 5, label: "5" },
+  { id: 6, label: "6" },
+  { id: 7, label: "7" },
+  { id: 8, label: "8" },
+  { id: 9, label: "9" },
+  { id: 10, label: "10" },
+  { id: 11, label: "11" },
+  { id: 12, label: "12" },
+  { id: 13, label: "13" },
+  { id: 14, label: "14" },
+  { id: 15, label: "15" },
+  { id: 16, label: "删除" },
+  { id: 17, label: "橡皮" },
 ]);
 const saves = reactive([
   { id: "Image", label: "仅保存标注部分" },
@@ -385,7 +396,7 @@ var afterMaterial = ref("gray");
 var Material = ref("gray");
 var Mouse = ref("无");
 var Screen = ref("全部展示");
-var BeChooseColor = ref("Red");
+var BeChooseColor = ref("red");
 var Pen = ref(false);
 var isFill = ref(false);
 const activeNames = ref(["1", "2", "3", "4", "5", "0"]);
@@ -397,13 +408,17 @@ async function handleMakePDF() {
   if (res.data._Result__code == 200) {
     basicInfo.value.name = res.data._Result__data.patient_name;
     basicInfo.value.sex = res.data._Result__data.sex;
-    basicInfo.value.id = res.data._Result__data.id ;
-  } else {
-    ElMessage.error("患者ID错误");
-  }
-  loading.value = false;
+    basicInfo.value.pid = res.data._Result__data.id ;
+    console.log(res.data._Result__data);
+    loading.value = false;
   const flag = Bus.emit("makepdf");
   if (flag) dialogVisible.value = false;
+  } else {
+    ElMessage.error("患者ID错误");
+    loading.value = false;
+  if (flag) dialogVisible.value = false;
+  }
+
 }
 // 器官计数
 async function handleCountNum() {
@@ -415,7 +430,7 @@ async function handleCountNum() {
     const { _Result__data } = data;
     description.value = _Result__data.description;
     ElNotification({
-      title: "器官个数",
+      title: "个数",
       type: "Success",
       position: "top-left",
       message: description.value,
@@ -437,7 +452,7 @@ async function operations() {
   if (fileType.value == 1) op = op +"/lungs";
  
   console.log(op);
-  const res = await fetch("http://10.33.89.159:5000/" + op, {
+  const res = await fetch("http://192.168.43.145:5000/" + op, {
     method: "POST",
     body: formData,
   });
@@ -445,10 +460,10 @@ async function operations() {
   if (data._Result__code == 200) {
     baseUrl.value = data._Result__data.base_url;
     imgName.value = data._Result__data.img_name;
-    imgId.value = data._Result__data.img_id;
+    imgId.value = data._Result__data.img_id ;
     ElMessage.success("上传成功,请稍等...");
     isInference.value = true;
-    let filePath = "http://10.33.89.159:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://192.168.43.145:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
   } else {
     ElMessage.error("上传失败了");
@@ -469,7 +484,7 @@ async function makeAll() {
   formData.append("file", newFile.raw);
   formData.append("img_name", imgName.value);
   formData.append("isFiter", isFiter.value);
-  const res = await fetch("http://10.33.89.159:5000/imgs/graphs", {
+  const res = await fetch("http://192.168.43.145:5000/imgs/graphs", {
     method: "POST",
     body: formData,
   });
@@ -480,7 +495,8 @@ async function makeAll() {
     imgId.value = data._Result__data.imgId;
     ElMessage.success("上传成功,请稍等...");
     isInference.value = true;
-    let filePath = "http://10.33.89.159:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://192.168.43.145:5000" + baseUrl.value + imgName.value;
+    lastPos.value.str=""
     Bus.emit("selectView", filePath);
     isadd.value = true ;
 
@@ -502,7 +518,7 @@ async function keepMaxArea() {
   formData.append("isFiter", isFiter.value);
   formData.append("isadd", isadd.value);
 
-  const res = await fetch("http://10.33.89.159:5000/imgs/domains", {
+  const res = await fetch("http://192.168.43.145:5000/imgs/domains", {
     method: "POST",
     body: formData,
   });
@@ -512,7 +528,7 @@ async function keepMaxArea() {
     imgName.value = data._Result__data.img_name;
     ElMessage.success("请稍等...");
     isInference.value = true;
-    let filePath = "http://10.33.89.159:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://192.168.43.145:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
     isFiter.value = true ;
   } else {
@@ -535,7 +551,7 @@ async function uploadAfterFile() {
   formData.append("isadd", isadd.value);
 
 
-  const res = await fetch("http://10.33.89.159:5000/imgs/option", {
+  const res = await fetch("http://192.168.43.145:5000/imgs/option", {
     method: "POST",
     body: formData,
   });
@@ -546,7 +562,7 @@ async function uploadAfterFile() {
     baseUrl.value = data._Result__data.base_url;
     imgName.value = data._Result__data.img_name;
     ElMessage.success("上传成功,请稍等...");
-    let filePath = "http://10.33.89.159:5000" + baseUrl.value + imgName.value;
+    let filePath = "http://192.168.43.145:5000" + baseUrl.value + imgName.value;
     Bus.emit("selectView", filePath);
   } else {
     ElMessage.error("上传失败了");
@@ -567,7 +583,7 @@ async function getArea() {
   formData.append("isadd", isadd.value);
 
 
-  const res = await fetch("http://10.33.89.159:5000/imgs/area", {
+  const res = await fetch("http://192.168.43.145:5000/imgs/area", {
     method: "POST",
     body: formData,
   });
@@ -596,7 +612,7 @@ async function getVolume() {
   formData.append("isadd", isadd.value);
 
 
-  const res = await fetch("http://10.33.89.159:5000/imgs/volume", {
+  const res = await fetch("http://192.168.43.145:5000/imgs/volume", {
     method: "POST",
     body: formData,
   });
@@ -627,7 +643,7 @@ async function getDia() {
   formData.append("isFiter", isFiter.value);
   formData.append("isadd", isadd.value);
 
-  const res = await fetch("http://10.33.89.159:5000/imgs/long", {
+  const res = await fetch("http://192.168.43.145:5000/imgs/long", {
     method: "POST",
     body: formData,
   });
@@ -679,7 +695,7 @@ const goHome = () => {
   width: 100vw;
   height: 100vh;
   background-color: rgba(255, 255, 255, 0);
-  z-index: 999;
+  z-index: 9999;
   display: flex;
   flex-direction: row-reverse;
   .tool {

@@ -103,30 +103,58 @@ export const useTool = defineStore("tool", () => {
   }
 
   // 画笔颜色工具
-  var choose = ref("Red");
+  var choose = ref("red");
   function handleColor() {
     View.setDrawingEnabled(pen.value);
     switch (choose.value) {
-      case "Red":
+      case "red":
         View.setPenValue(1, fill.value);
         break;
-      case "Green":
+      case 2:
         View.setPenValue(2, fill.value);
         break;
-      case "Blue":
+      case 3:
         View.setPenValue(3, fill).value;
         break;
-      case "Yellow":
+      case 4:
         View.setPenValue(4, fill.value);
         break;
-      case "Cyan":
+      case 5:
         View.setPenValue(5, fill);
         break;
-      case "Purple":
+      case 6:
         View.setPenValue(6, fill);
         break;
-      case "Erase":
-        View.setPenValue(0, fill);
+      case 7:
+        View.setPenValue(7, fill);
+      case 8:
+        View.setPenValue(8, fill.value);
+        break;
+      case 9:
+        View.setPenValue(9, fill.value);
+        break;
+      case 10:
+        View.setPenValue(10, fill).value;
+        break;
+      case 11:
+        View.setPenValue(11, fill.value);
+        break;
+      case 12:
+        View.setPenValue(12, fill);
+        break;
+      case 13:
+        View.setPenValue(13, fill);
+        break;
+      case 14:
+        View.setPenValue(14, fill);            
+      case 15:
+        View.setPenValue(15, fill);
+        break;
+      case 16:
+        View.setPenValue(16, fill);  
+        break;
+      case 17:
+        View.setPenValue(0, fill);  
         break;
     }
   }
@@ -169,7 +197,7 @@ export const useTool = defineStore("tool", () => {
     data.append("isadd", isadd.value);
 
 
-    const res = await fetch("http://10.33.89.159:5000/imgs/nums", {
+    const res = await fetch("http://192.168.43.145:5000/imgs/nums", {
       method: "POST",
       body: data,
     });
